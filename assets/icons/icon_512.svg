@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0C29"/>
+      <stop offset="55%" stop-color="#302B63"/>
+      <stop offset="100%" stop-color="#1A0E3E"/>
+    </linearGradient>
+    <linearGradient id="gPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667EEA"/>
+      <stop offset="100%" stop-color="#764BA2"/>
+    </linearGradient>
+    <linearGradient id="gGreen" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#11998E"/>
+      <stop offset="100%" stop-color="#38EF7D"/>
+    </linearGradient>
+    <linearGradient id="gBlueLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#54C5F8"/>
+      <stop offset="100%" stop-color="#29B6F6"/>
+    </linearGradient>
+    <linearGradient id="gBlueDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0176D3"/>
+      <stop offset="100%" stop-color="#01579B"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.00"/>
+    </linearGradient>
+    <filter id="dropshadow">
+      <feDropShadow dx="0" dy="10" stdDeviation="22" flood-color="#000000" flood-opacity="0.50"/>
+    </filter>
+    <filter id="coreglow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="rc">
+      <rect width="512" height="512" rx="114" ry="114"/>
+    </clipPath>
+  </defs>
+
+  <!-- App background -->
+  <rect width="512" height="512" rx="114" ry="114" fill="url(#bg)"/>
+
+  <!-- Ambient halos -->
+  <circle cx="256" cy="200" r="260" fill="#667EEA" opacity="0.09"/>
+  <circle cx="370" cy="120" r="130" fill="#38EF7D" opacity="0.07"/>
+  <circle cx="140" cy="400" r="100" fill="#54C5F8" opacity="0.06"/>
+
+  <!-- ── Main emblem ── -->
+  <g clip-path="url(#rc)" filter="url(#dropshadow)">
+
+    <!-- Hexagon base plate -->
+    <polygon
+      points="256,80 396,168 396,344 256,432 116,344 116,168"
+      fill="url(#gPurple)" opacity="0.92"/>
+
+    <!-- Dart classic 3-face split inside hex -->
+    <!-- Top-left dark face -->
+    <polygon
+      points="256,80  116,168  116,344  256,256"
+      fill="url(#gBlueDark)" opacity="0.90"/>
+
+    <!-- Top-right lighter face -->
+    <polygon
+      points="256,80  396,168  396,344  256,256"
+      fill="url(#gBlueLight)" opacity="0.88"/>
+
+    <!-- Bottom face -->
+    <polygon
+      points="116,344  256,432  396,344  256,256"
+      fill="#0288D1" opacity="0.85"/>
+
+    <!-- Shine overlay top-right face -->
+    <polygon
+      points="256,80  396,168  396,344  256,256"
+      fill="url(#shine)"/>
+
+    <!-- Edge separators -->
+    <line x1="256" y1="80"  x2="256" y2="256" stroke="white" stroke-width="1.2" opacity="0.18"/>
+    <line x1="116" y1="344" x2="256" y2="256" stroke="white" stroke-width="1.2" opacity="0.12"/>
+    <line x1="396" y1="344" x2="256" y2="256" stroke="white" stroke-width="1.2" opacity="0.12"/>
+  </g>
+
+  <!-- Center glowing core (above clip) -->
+  <g filter="url(#coreglow)">
+    <circle cx="256" cy="256" r="52" fill="url(#gGreen)" opacity="0.96"/>
+    <circle cx="256" cy="256" r="33" fill="#ffffff" opacity="0.97"/>
+    <!-- Small inner dart diamond -->
+    <polygon points="256,232 278,256 256,280 234,256" fill="url(#gGreen)"/>
+  </g>
+
+  <!-- Outer hex border glow ring -->
+  <polygon
+    points="256,78 398,167 398,345 256,434 114,345 114,167"
+    fill="none" stroke="url(#gPurple)" stroke-width="2" opacity="0.35"/>
+
+  <!-- Corner dot accents -->
+  <g fill="#ffffff" opacity="0.11">
+    <circle cx="66"  cy="68"  r="4"/>
+    <circle cx="96"  cy="68"  r="4"/>
+    <circle cx="66"  cy="98"  r="4"/>
+    <circle cx="96"  cy="98"  r="4"/>
+    <circle cx="416" cy="414" r="4"/>
+    <circle cx="446" cy="414" r="4"/>
+    <circle cx="416" cy="444" r="4"/>
+    <circle cx="446" cy="444" r="4"/>
+  </g>
+</svg>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dartly – Privacy Policy</title>
+  <style>
+    :root {
+      --bg: #0D0D1A;
+      --surface: #1A1A2E;
+      --text: #E0E0FF;
+      --text2: #A0A0C0;
+      --primary: #667EEA;
+      --accent: #38EF7D;
+      --border: #2A2A4A;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #0F0C29, #302B63, #24243E);
+      padding: 60px 40px 40px;
+      text-align: center;
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #667EEA, #764BA2);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+    }
+    .logo-name {
+      font-size: 32px; font-weight: 900;
+      background: linear-gradient(135deg, #667EEA, #38EF7D);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
+    header p { color: var(--text2); font-size: 15px; }
+    .badge {
+      display: inline-block;
+      background: rgba(56,239,125,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56,239,125,0.3);
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 13px; font-weight: 700;
+      margin-top: 16px;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 40px;
+    }
+    .toc h2 { font-size: 14px; color: var(--primary); font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .toc a { display: block; color: var(--text2); text-decoration: none;
+      font-size: 14px; padding: 4px 0; transition: color 0.2s; }
+    .toc a:hover { color: var(--primary); }
+    section { margin-bottom: 48px; }
+    h2.section-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--text);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2.section-title .num {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #667EEA, #764BA2);
+      border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    p, li { color: var(--text2); font-size: 15px; margin-bottom: 12px; }
+    ul { padding-left: 0; list-style: none; }
+    li { padding-left: 22px; position: relative; }
+    li::before { content: '•'; color: var(--primary); position: absolute; left: 0; }
+    .highlight {
+      background: rgba(102,126,234,0.1);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .green-box {
+      background: rgba(56,239,125,0.08);
+      border: 1px solid rgba(56,239,125,0.25);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .green-box p { color: var(--accent); font-weight: 600; margin: 0; }
+    strong { color: var(--text); font-weight: 700; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .contact-row { display: flex; gap: 12px; align-items: center; }
+    .contact-label { color: var(--text2); font-size: 13px; min-width: 80px; }
+    .contact-val { color: var(--text); font-size: 14px; font-weight: 600; }
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--text2);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 600px) {
+      header { padding: 40px 20px 30px; }
+      header h1 { font-size: 22px; }
+      main { padding: 30px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎯</div>
+    <span class="logo-name">Dartly</span>
+  </div>
+  <h1>Privacy Policy</h1>
+  <p>Your privacy matters to us. Here's everything you need to know.</p>
+  <div class="badge">✓ No Data Collection · 100% Offline · No Ads</div>
+</header>
+
+<main>
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <a href="#overview">1. Overview</a>
+    <a href="#data">2. Data We Collect</a>
+    <a href="#local">3. Local Storage</a>
+    <a href="#third-party">4. Third-Party Services</a>
+    <a href="#children">5. Children's Privacy</a>
+    <a href="#changes">6. Changes to This Policy</a>
+    <a href="#contact">7. Contact Us</a>
+  </div>
+
+  <section id="overview">
+    <h2 class="section-title"><span class="num">1</span> Overview</h2>
+    <div class="green-box">
+      <p>🎉 Dartly does not collect, transmit, or share any personal data. The app works completely offline.</p>
+    </div>
+    <p>This Privacy Policy applies to the Dartly mobile application ("the App") available on the Google Play Store. By using Dartly, you agree to this policy.</p>
+    <p>Dartly is a Dart programming language learning app offering lessons, quizzes, and exercises. All content is bundled within the app. No internet connection is required.</p>
+  </section>
+
+  <section id="data">
+    <h2 class="section-title"><span class="num">2</span> Data We Collect</h2>
+    <div class="highlight">
+      <p><strong>We collect zero personal information.</strong> We do not collect your name, email address, phone number, location, device ID, or any other personal identifier.</p>
+    </div>
+    <p>Dartly does not include analytics, crash reporting, advertising SDKs, or any network-connected services that would transmit data from your device.</p>
+  </section>
+
+  <section id="local">
+    <h2 class="section-title"><span class="num">3</span> Local Storage</h2>
+    <p>To provide a personalized learning experience, Dartly stores the following information <strong>locally on your device only</strong>, using AsyncStorage:</p>
+    <ul>
+      <li>Completed lesson IDs</li>
+      <li>Quiz scores per lesson</li>
+      <li>Total XP points earned</li>
+      <li>Daily learning streak count</li>
+      <li>Bookmarked lesson IDs</li>
+      <li>Your chosen theme (dark/light)</li>
+    </ul>
+    <p>This data <strong>never leaves your device</strong>. It is not transmitted to any server. You can delete all stored data at any time from the Profile screen → "Reset All Progress".</p>
+    <p>Uninstalling the app will automatically remove all locally stored data.</p>
+  </section>
+
+  <section id="third-party">
+    <h2 class="section-title"><span class="num">4</span> Third-Party Services</h2>
+    <p>Dartly does <strong>not</strong> use any of the following:</p>
+    <ul>
+      <li>Advertising networks or ad SDKs</li>
+      <li>Analytics platforms (e.g., Firebase Analytics, Mixpanel)</li>
+      <li>Crash reporting services (e.g., Crashlytics, Sentry)</li>
+      <li>Social login providers</li>
+      <li>Payment processors</li>
+      <li>Cloud storage or sync services</li>
+    </ul>
+    <p>The app makes <strong>no network requests</strong> of any kind during normal usage.</p>
+  </section>
+
+  <section id="children">
+    <h2 class="section-title"><span class="num">5</span> Children's Privacy</h2>
+    <p>Dartly is suitable for users of all ages, including children under 13 (COPPA) and under 16 (GDPR). Since the app collects no personal data and has no network connectivity, there is no risk of children's data being collected or shared.</p>
+    <p>Parents and guardians can feel confident that Dartly is a safe educational application.</p>
+  </section>
+
+  <section id="changes">
+    <h2 class="section-title"><span class="num">6</span> Changes to This Policy</h2>
+    <p>We may update this Privacy Policy as the app evolves. Any changes will be posted within the app and reflected in the "Last Updated" date below. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+    <p><strong>Last Updated:</strong> May 2026</p>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title"><span class="num">7</span> Contact Us</h2>
+    <p>If you have any questions or concerns about this Privacy Policy, please contact us:</p>
+    <div class="contact-card">
+      <div class="contact-row">
+        <span class="contact-label">App</span>
+        <span class="contact-val">Dartly</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">Email</span>
+        <span class="contact-val"><a href="mailto:support@dartly.app">support@dartly.app</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">Website</span>
+        <span class="contact-val"><a href="https://dartly.app">dartly.app</a></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 Dartly · All rights reserved · <a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a></p>
+  <p style="margin-top:8px">Built with ❤️ for the Dart community</p>
+</footer>
+
+</body>
+</html>
