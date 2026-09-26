@@ -3883,4 +3883,4856 @@ void main() {
     },
   },
 
+
+// ═══════════════════════════════════════
+  //  INTERMEDIATE  — Lessons 31 to 60
+  // ═══════════════════════════════════════
+
+  {
+    id: 31,
+    level: 'Intermediate',
+    title: 'Null Safety in Depth',
+    content: `# Dart Null Safety
+
+Dart's sound null safety means variables cannot hold \`null\` unless you explicitly allow it. This eliminates an entire class of runtime null-pointer errors.
+
+## Nullable vs Non-Nullable
+
+\`\`\`dart
+String name = 'Alice';   // cannot be null
+String? nickname = null; // nullable — the ? allows null
+\`\`\`
+
+## Null-Aware Operators
+
+**?.** — safely calls a method only if the object is not null:
+\`\`\`dart
+String? text;
+print(text?.length); // prints null instead of crashing
+\`\`\`
+
+**!** — null assertion operator; throws if the value IS null:
+\`\`\`dart
+print(text!.length); // crashes if text is actually null
+\`\`\`
+
+**??** — if-null operator, provides a fallback:
+\`\`\`dart
+String display = nickname ?? 'No nickname';
+\`\`\`
+
+**??=** — assign only if the variable is currently null:
+\`\`\`dart
+nickname ??= 'Buddy';
+\`\`\`
+
+## Late Variables
+
+The \`late\` keyword tells Dart a non-nullable variable will be initialised before it is first used:
+\`\`\`dart
+late String fullName;
+fullName = 'Alice Smith'; // assigned before use — OK
+\`\`\``,
+    tips: [
+      'Avoid the ! operator whenever possible — it bypasses null safety and can crash at runtime.',
+      'Prefer ?? and ?. to keep your code safe and concise.',
+      'Use late only when you are 100 % certain the variable will be set before it is read.',
+    ],
+    codeSnippet: `void main() {
+  String city = 'Cairo';
+
+  String? country;
+  print(country);               // null
+  print(country?.length);       // null (safe)
+  print(country ?? 'Unknown');  // Unknown
+
+  country = 'Egypt';
+  print(country?.toUpperCase()); // EGYPT
+
+  String? alias;
+  alias ??= 'Traveller';
+  print(alias); // Traveller
+
+  late String welcomeMsg;
+  welcomeMsg = 'Welcome to \$city';
+  print(welcomeMsg);
+}`,
+    expectedOutput: `null\nnull\nUnknown\nEGYPT\nTraveller\nWelcome to Cairo`,
+    quiz: [
+      { question: 'What does the ? after a type (e.g. String?) mean in Dart?', options: ['The variable is optional in a function', 'The variable can hold null', 'The variable uses lazy evaluation', 'The type is dynamic'], correctAnswerIndex: 1 },
+      { question: 'Which operator safely accesses a member only when the object is not null?', options: ['!.', '??.', '?.', '::'], correctAnswerIndex: 2 },
+      { question: 'What does the late keyword promise Dart?', options: ['The variable will never be null', 'The variable will be assigned before its first use', 'The variable is computed lazily on every access', 'The variable is a constant'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write a function getUserLabel(String? firstName, String? lastName) that returns "firstName lastName" if both are present, "firstName" if only first name exists, "lastName" if only last name exists, and "Anonymous" if both are null.',
+      starterCode: `String getUserLabel(String? firstName, String? lastName) {
+  // Implement using null-aware operators
+}
+
+void main() {
+  print(getUserLabel('Alice', 'Smith'));
+  print(getUserLabel('Bob', null));
+  print(getUserLabel(null, 'Jones'));
+  print(getUserLabel(null, null));
+}`,
+      solution: `String getUserLabel(String? firstName, String? lastName) {
+  if (firstName != null && lastName != null) return '\$firstName \$lastName';
+  return firstName ?? lastName ?? 'Anonymous';
+}
+
+void main() {
+  print(getUserLabel('Alice', 'Smith'));
+  print(getUserLabel('Bob', null));
+  print(getUserLabel(null, 'Jones'));
+  print(getUserLabel(null, null));
+}`,
+    },
+  },
+
+  {
+    id: 32,
+    level: 'Intermediate',
+    title: 'Advanced Functions — Named, Optional & First-Class',
+    content: `# Functions as First-Class Citizens
+
+In Dart, functions are objects. You can store them in variables, pass them as arguments, and return them from other functions.
+
+## Named Parameters
+
+Named parameters are wrapped in curly braces \`{}\`. Use \`required\` to make them mandatory:
+\`\`\`dart
+void greet({required String name, int times = 1}) {
+  for (int i = 0; i < times; i++) print('Hello, \$name!');
+}
+greet(name: 'Alice', times: 3);
+\`\`\`
+
+## Optional Positional Parameters
+
+Wrap in square brackets \`[]\`:
+\`\`\`dart
+String describe(String name, [String? role]) {
+  return role != null ? '\$name (\$role)' : name;
+}
+\`\`\`
+
+## Higher-Order Functions
+
+A function that accepts or returns another function:
+\`\`\`dart
+void repeat(int times, void Function() action) {
+  for (int i = 0; i < times; i++) action();
+}
+repeat(3, () => print('Dart!'));
+\`\`\`
+
+## Closures
+
+A function that captures variables from its surrounding scope:
+\`\`\`dart
+Function makeAdder(int addBy) => (int x) => x + addBy;
+var add5 = makeAdder(5);
+print(add5(10)); // 15
+\`\`\``,
+    tips: [
+      'Prefer named parameters for functions with more than two arguments — they make call sites self-documenting.',
+      'Arrow functions (=>) are perfect for single-expression functions. They keep code concise.',
+      'Closures are very common in Flutter widget callbacks — understanding them is essential.',
+    ],
+    codeSnippet: `void printInvoice({
+  required String customer,
+  required double amount,
+  String currency = 'USD',
+  bool paid = false,
+}) {
+  final status = paid ? 'Paid' : 'Unpaid';
+  print('\$customer | \$currency \${amount.toStringAsFixed(2)} | \$status');
+}
+
+List<T> myMap<T, R>(List<R> items, T Function(R) transform) =>
+    [for (final item in items) transform(item)];
+
+Function multiplier(int factor) => (int x) => x * factor;
+
+void main() {
+  printInvoice(customer: 'Alice', amount: 250.0, paid: true);
+  printInvoice(customer: 'Bob', amount: 99.99, currency: 'EUR');
+
+  final doubled = myMap([1, 2, 3, 4, 5], (n) => n * 2);
+  print('Doubled: \$doubled');
+
+  final triple = multiplier(3);
+  print('Triple 7: \${triple(7)}');
+}`,
+    expectedOutput: `Alice | USD 250.00 | Paid\nBob | EUR 99.99 | Unpaid\nDoubled: [2, 4, 6, 8, 10]\nTriple 7: 21`,
+    quiz: [
+      { question: 'How do you mark a named parameter as mandatory in Dart?', options: ['Using ! after the type', 'Wrapping it in []', 'Using the required keyword', 'Setting no default value'], correctAnswerIndex: 2 },
+      { question: 'What is a closure in Dart?', options: ['A function with no parameters', 'A function that captures variables from its enclosing scope', 'A private class method', 'A function that returns void'], correctAnswerIndex: 1 },
+      { question: 'Which syntax defines a single-expression function in Dart?', options: ['::', '->', '=>', '<<'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Write a higher-order function applyTwice(int Function(int) f, int x) that applies f to x twice (i.e. f(f(x))). Test it with a function that doubles a number and one that adds 10.',
+      starterCode: `int applyTwice(int Function(int) f, int x) {
+  // Apply f twice and return result
+}
+
+void main() {
+  print(applyTwice((n) => n * 2, 3));   // 12
+  print(applyTwice((n) => n + 10, 5));  // 25
+}`,
+      solution: `int applyTwice(int Function(int) f, int x) => f(f(x));
+
+void main() {
+  print(applyTwice((n) => n * 2, 3));   // 12
+  print(applyTwice((n) => n + 10, 5));  // 25
+}`,
+    },
+  },
+
+  {
+    id: 33,
+    level: 'Intermediate',
+    title: 'Classes and Objects — OOP Fundamentals',
+    content: `# Object-Oriented Programming in Dart
+
+Dart is a fully object-oriented language. Every value is an object.
+
+## Defining a Class
+
+\`\`\`dart
+class Car {
+  String brand;
+  int year;
+  Car(this.brand, this.year);
+  void honk() => print('\$brand says: Beep!');
+}
+\`\`\`
+
+## Constructors
+
+**Positional**: \`Car(this.brand, this.year);\`
+**Named params**: \`Car({required this.brand, required this.year});\`
+**Named constructors**: \`Car.electric(this.brand) : year = 2024;\`
+
+## Getters and Setters
+
+\`\`\`dart
+double get fuelPercent => _fuel / 60 * 100;
+set fuel(double v) => _fuel = v.clamp(0, 60);
+\`\`\`
+
+## Private Fields
+
+Fields prefixed with \`_\` are private to the library:
+\`\`\`dart
+double _balance = 0;
+double get balance => _balance;
+\`\`\``,
+    tips: [
+      'Use this.field in constructor parameters to automatically assign parameters to fields.',
+      'Keep fields private (prefix with _) and expose them via getters/setters when validation is needed.',
+      'Named constructors (e.g. Point.origin()) are great for multiple ways to create an object.',
+    ],
+    codeSnippet: `class BankAccount {
+  final String owner;
+  final String id;
+  double _balance;
+
+  BankAccount({required this.owner, required this.id, double initialBalance = 0})
+      : _balance = initialBalance;
+
+  BankAccount.empty(this.owner, this.id) : _balance = 0;
+
+  double get balance => _balance;
+
+  void deposit(double amount) {
+    if (amount <= 0) throw ArgumentError('Deposit must be positive');
+    _balance += amount;
+    print('Deposited \$amount → balance: \$_balance');
+  }
+
+  bool withdraw(double amount) {
+    if (amount > _balance) { print('Insufficient funds'); return false; }
+    _balance -= amount;
+    print('Withdrew \$amount → balance: \$_balance');
+    return true;
+  }
+
+  @override
+  String toString() => 'Account[\$id] \$owner: \\\$\${_balance.toStringAsFixed(2)}';
+}
+
+void main() {
+  final acc = BankAccount(owner: 'Alice', id: 'ACC001', initialBalance: 500);
+  print(acc);
+  acc.deposit(250);
+  acc.withdraw(100);
+  acc.withdraw(700);
+  print(acc);
+}`,
+    expectedOutput: `Account[ACC001] Alice: \$500.00\nDeposited 250.0 → balance: 750.0\nWithdrew 100.0 → balance: 650.0\nInsufficient funds\nAccount[ACC001] Alice: \$650.00`,
+    quiz: [
+      { question: 'What does BankAccount(this.owner) do in a Dart constructor?', options: ['Creates a getter for owner', 'Automatically assigns the parameter to the field', 'Marks owner as private', 'Declares a static field'], correctAnswerIndex: 1 },
+      { question: 'What is the purpose of a named constructor in Dart?', options: ['To override toString', 'To provide multiple ways to create an object', 'To create a singleton', 'To hide the default constructor'], correctAnswerIndex: 1 },
+      { question: 'How do you declare a private field in Dart?', options: ['private int x;', 'int #x;', 'int _x;', '#int x;'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create a Rectangle class with width and height. Add getters for area and perimeter, a scale(double factor) method, and a named constructor Rectangle.square(double side). Test all of them.',
+      starterCode: `class Rectangle {
+  double width;
+  double height;
+
+  // Add constructors, getters, scale method
+}
+
+void main() {
+  final r = Rectangle(4, 6);
+  print('Area: \${r.area}');
+  print('Perimeter: \${r.perimeter}');
+  r.scale(2);
+  print('After scale: \${r.width}x\${r.height}');
+  final sq = Rectangle.square(5);
+  print('Square area: \${sq.area}');
+}`,
+      solution: `class Rectangle {
+  double width;
+  double height;
+
+  Rectangle(this.width, this.height);
+  Rectangle.square(double side) : width = side, height = side;
+
+  double get area => width * height;
+  double get perimeter => 2 * (width + height);
+
+  void scale(double factor) {
+    width *= factor;
+    height *= factor;
+  }
+}
+
+void main() {
+  final r = Rectangle(4, 6);
+  print('Area: \${r.area}');
+  print('Perimeter: \${r.perimeter}');
+  r.scale(2);
+  print('After scale: \${r.width}x\${r.height}');
+  final sq = Rectangle.square(5);
+  print('Square area: \${sq.area}');
+}`,
+    },
+  },
+
+  {
+    id: 34,
+    level: 'Intermediate',
+    title: 'Inheritance and Method Overriding',
+    content: `# Inheritance in Dart
+
+Inheritance lets a class reuse the properties and methods of another class, extending or replacing behaviour.
+
+## extends and super
+
+\`\`\`dart
+class Animal {
+  final String name;
+  Animal(this.name);
+  void speak() => print('\$name makes a sound.');
+}
+
+class Dog extends Animal {
+  Dog(super.name);          // passes arg to parent constructor
+  @override
+  void speak() => print('\$name says: Woof!');
+}
+\`\`\`
+
+## Abstract Classes
+
+An abstract class cannot be instantiated. It defines a contract subclasses must fulfil:
+\`\`\`dart
+abstract class Shape {
+  double get area;                          // abstract getter
+  void describe() => print('Area: \$area'); // concrete method
+}
+\`\`\`
+
+## @override
+
+Always add \`@override\` when replacing a parent method. The analyser warns you if the parent has no such method.`,
+    tips: [
+      'Always add @override when replacing a parent method — it is a compile-time safety net.',
+      'Use abstract classes to define shared contracts without providing all implementations.',
+      'Prefer composition over deep inheritance hierarchies.',
+    ],
+    codeSnippet: `abstract class Vehicle {
+  final String make;
+  final int year;
+  Vehicle(this.make, this.year);
+
+  double get fuelCostPer100km;
+  String get type;
+
+  void describe() =>
+      print('\$year \$make (\$type) — \${fuelCostPer100km}L/100km');
+}
+
+class Sedan extends Vehicle {
+  Sedan(super.make, super.year);
+  @override double get fuelCostPer100km => 7.5;
+  @override String get type => 'Sedan';
+}
+
+class SUV extends Vehicle {
+  SUV(super.make, super.year);
+  @override double get fuelCostPer100km => 11.0;
+  @override String get type => 'SUV';
+}
+
+class ElectricCar extends Vehicle {
+  ElectricCar(super.make, super.year);
+  @override double get fuelCostPer100km => 0;
+  @override String get type => 'Electric';
+  @override void describe() => print('\$year \$make (\$type) — zero emissions');
+}
+
+void main() {
+  final fleet = <Vehicle>[
+    Sedan('Toyota', 2022),
+    SUV('Ford', 2021),
+    ElectricCar('Tesla', 2023),
+  ];
+  for (final v in fleet) v.describe();
+}`,
+    expectedOutput: `2022 Toyota (Sedan) — 7.5L/100km\n2021 Ford (SUV) — 11.0L/100km\n2023 Tesla (Electric) — zero emissions`,
+    quiz: [
+      { question: 'What keyword does a Dart class use to inherit from another class?', options: ['inherits', 'implements', 'extends', 'derives'], correctAnswerIndex: 2 },
+      { question: 'What is an abstract class?', options: ['A class with only private fields', 'A class that cannot be instantiated and may declare abstract members', 'A class with no constructor', 'A class used only in tests'], correctAnswerIndex: 1 },
+      { question: 'Why should you use @override?', options: ['It speeds up the method', 'It lets the analyser warn you if no matching method exists in the parent', 'It marks the method as private', 'It is required for all methods'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Create an abstract Employee with name, hourlyRate, and abstract method weeklyPay(). Subclasses: FullTimeEmployee (fixed 40 hrs/week) and PartTimeEmployee(int hoursWorked). Print weekly pay for one of each.',
+      starterCode: `abstract class Employee {
+  final String name;
+  final double hourlyRate;
+  Employee(this.name, this.hourlyRate);
+  double weeklyPay();
+  @override
+  String toString() => '\$name: \\\$\${weeklyPay().toStringAsFixed(2)}/week';
+}
+
+class FullTimeEmployee extends Employee {
+  FullTimeEmployee(super.name, super.hourlyRate);
+  // 40 hours/week
+}
+
+class PartTimeEmployee extends Employee {
+  final int hoursWorked;
+  PartTimeEmployee(super.name, super.hourlyRate, this.hoursWorked);
+  // variable hours
+}
+
+void main() {
+  print(FullTimeEmployee('Alice', 25.0));
+  print(PartTimeEmployee('Bob', 20.0, 22));
+}`,
+      solution: `abstract class Employee {
+  final String name;
+  final double hourlyRate;
+  Employee(this.name, this.hourlyRate);
+  double weeklyPay();
+  @override
+  String toString() => '\$name: \\\$\${weeklyPay().toStringAsFixed(2)}/week';
+}
+
+class FullTimeEmployee extends Employee {
+  FullTimeEmployee(super.name, super.hourlyRate);
+  @override double weeklyPay() => hourlyRate * 40;
+}
+
+class PartTimeEmployee extends Employee {
+  final int hoursWorked;
+  PartTimeEmployee(super.name, super.hourlyRate, this.hoursWorked);
+  @override double weeklyPay() => hourlyRate * hoursWorked;
+}
+
+void main() {
+  print(FullTimeEmployee('Alice', 25.0));
+  print(PartTimeEmployee('Bob', 20.0, 22));
+}`,
+    },
+  },
+
+  {
+    id: 35,
+    level: 'Intermediate',
+    title: 'Interfaces and Mixins',
+    content: `# Interfaces and Mixins
+
+## implements
+
+Every class implicitly defines an interface. Use \`implements\` to promise you will provide all the methods — without inheriting code:
+\`\`\`dart
+abstract class Printable {
+  void printInfo();
+}
+class Invoice implements Printable {
+  @override void printInfo() => print('Invoice...');
+}
+\`\`\`
+
+## Mixins
+
+A **mixin** lets you reuse code across unrelated class hierarchies without normal inheritance. Use \`mixin\` to define one and \`with\` to apply it:
+\`\`\`dart
+mixin Logger {
+  void log(String msg) => print('[LOG] \$msg');
+}
+class Service with Logger {
+  void start() => log('Service started');
+}
+\`\`\`
+
+## Combining
+
+A class can \`extend\` ONE class, but \`implement\` or \`mixin\` as many as needed:
+\`\`\`dart
+class Robot with Logger, Serializable implements Machine { ... }
+\`\`\``,
+    tips: [
+      'Use implements when you only care about the shape, not inherited code.',
+      'Use mixins to share utility behaviours (logging, validation) across unrelated classes.',
+      'A class can extend ONE class, but apply as many mixins as needed.',
+    ],
+    codeSnippet: `mixin Timestamped {
+  String get timestamp => DateTime.now().toIso8601String().substring(0, 10);
+}
+
+mixin Validatable {
+  List<String> get errors;
+  bool get isValid => errors.isEmpty;
+}
+
+class User with Timestamped, Validatable {
+  final String email;
+  final String password;
+
+  User({required this.email, required this.password});
+
+  @override
+  List<String> get errors {
+    final e = <String>[];
+    if (!email.contains('@')) e.add('Invalid email');
+    if (password.length < 8) e.add('Password too short');
+    return e;
+  }
+}
+
+void main() {
+  final u1 = User(email: 'alice@example.com', password: 'securePass');
+  final u2 = User(email: 'bad-email', password: 'short');
+
+  print('User 1 valid: \${u1.isValid}');
+  print('User 2 errors: \${u2.errors}');
+  print('Created: \${u1.timestamp}');
+}`,
+    expectedOutput: `User 1 valid: true\nUser 2 errors: [Invalid email, Password too short]\nCreated: 2024-01-01`,
+    quiz: [
+      { question: 'What is the key difference between extends and implements?', options: ['implements is faster', 'extends inherits code; implements only requires you to provide the methods', 'implements allows multiple parents; extends does not', 'No difference'], correctAnswerIndex: 1 },
+      { question: 'What keyword applies a mixin to a class?', options: ['uses', 'mixes', 'with', 'include'], correctAnswerIndex: 2 },
+      { question: 'How many classes can a Dart class extend?', options: ['As many as needed', 'Only one', 'Up to three', 'Only two'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Define a mixin Discountable with applyDiscount(double price, double percent) returning the discounted price. Create a Product class using this mixin, then print the discounted price of a £1200 Laptop at 15% off.',
+      starterCode: `mixin Discountable {
+  double applyDiscount(double price, double percent) {
+    // Return price minus the percentage
+  }
+}
+
+class Product with Discountable {
+  final String name;
+  double price;
+  Product(this.name, this.price);
+}
+
+void main() {
+  final p = Product('Laptop', 1200.0);
+  print(p.applyDiscount(p.price, 15).toStringAsFixed(2));
+}`,
+      solution: `mixin Discountable {
+  double applyDiscount(double price, double percent) =>
+      price - (price * percent / 100);
+}
+
+class Product with Discountable {
+  final String name;
+  double price;
+  Product(this.name, this.price);
+}
+
+void main() {
+  final p = Product('Laptop', 1200.0);
+  print(p.applyDiscount(p.price, 15).toStringAsFixed(2)); // 1020.00
+}`,
+    },
+  },
+
+  {
+    id: 36,
+    level: 'Intermediate',
+    title: 'Generics',
+    content: `# Generics in Dart
+
+Generics let you write reusable, type-safe code that works with any type, while still catching type errors at compile time.
+
+## Generic Class
+
+\`\`\`dart
+class Stack<T> {
+  final _items = <T>[];
+  void push(T item) => _items.add(item);
+  T pop() => _items.removeLast();
+  T get peek => _items.last;
+  bool get isEmpty => _items.isEmpty;
+}
+
+final intStack = Stack<int>()..push(1)..push(2);
+print(intStack.pop()); // 2
+\`\`\`
+
+## Generic Functions
+
+\`\`\`dart
+T first<T>(List<T> list) => list.first;
+\`\`\`
+
+## Bounded Type Parameters
+
+Restrict T to a type hierarchy:
+\`\`\`dart
+T largest<T extends Comparable<T>>(T a, T b) =>
+    a.compareTo(b) >= 0 ? a : b;
+\`\`\``,
+    tips: [
+      'Use single uppercase letters (T, K, V, E) for generic type parameters by convention.',
+      'Constraints (extends) let you call methods on T that belong to the bound type.',
+      "Dart's built-in collections (List<T>, Map<K,V>, Set<T>) are all generic.",
+    ],
+    codeSnippet: `class Pair<A, B> {
+  final A first;
+  final B second;
+  const Pair(this.first, this.second);
+
+  Pair<B, A> get swapped => Pair(second, first);
+
+  @override
+  String toString() => '(\$first, \$second)';
+}
+
+T? findFirst<T>(List<T> list, bool Function(T) test) {
+  for (final item in list) {
+    if (test(item)) return item;
+  }
+  return null;
+}
+
+T maxOf<T extends Comparable<T>>(List<T> items) =>
+    items.reduce((a, b) => a.compareTo(b) > 0 ? a : b);
+
+void main() {
+  final p = Pair('Alice', 30);
+  print(p);
+  print(p.swapped);
+
+  final names = ['Charlie', 'Alice', 'Bob', 'Dave'];
+  print(findFirst(names, (n) => n.startsWith('B')));
+
+  print(maxOf([3, 1, 4, 1, 5, 9, 2, 6]));
+  print(maxOf(['banana', 'apple', 'mango']));
+}`,
+    expectedOutput: `(Alice, 30)\n(30, Alice)\nBob\n9\nmango`,
+    quiz: [
+      { question: 'What is the purpose of generics in Dart?', options: ['To make code run faster', 'To write type-safe reusable code that works across types', 'To enable dynamic typing', 'To define abstract classes'], correctAnswerIndex: 1 },
+      { question: 'What does <T extends Comparable<T>> mean?', options: ['T must be a number', 'T must implement the Comparable interface', 'T extends the class literally called Comparable', 'T is optional'], correctAnswerIndex: 1 },
+      { question: 'Which is a valid generic class instantiation?', options: ['Stack(int)', 'Stack.int()', 'Stack<int>()', 'Stack[int]()'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Implement a generic Queue<T> (FIFO) with enqueue(T item), T dequeue(), T get front, bool get isEmpty, and int get length. Test it with integers.',
+      starterCode: `class Queue<T> {
+  // Implement using a List
+}
+
+void main() {
+  final q = Queue<int>();
+  q.enqueue(1);
+  q.enqueue(2);
+  q.enqueue(3);
+  print('Front: \${q.front}');
+  print('Dequeue: \${q.dequeue()}');
+  print('Length: \${q.length}');
+}`,
+      solution: `class Queue<T> {
+  final _items = <T>[];
+  void enqueue(T item) => _items.add(item);
+  T dequeue() => _items.removeAt(0);
+  T get front => _items.first;
+  bool get isEmpty => _items.isEmpty;
+  int get length => _items.length;
+}
+
+void main() {
+  final q = Queue<int>();
+  q.enqueue(1);
+  q.enqueue(2);
+  q.enqueue(3);
+  print('Front: \${q.front}');
+  print('Dequeue: \${q.dequeue()}');
+  print('Length: \${q.length}');
+}`,
+    },
+  },
+
+  {
+    id: 37,
+    level: 'Intermediate',
+    title: 'Collections Deep Dive — Map and Set',
+    content: `# Maps and Sets
+
+## Maps
+
+A \`Map\` stores key-value pairs with unique keys:
+\`\`\`dart
+Map<String, int> scores = {'Alice': 95, 'Bob': 82};
+scores['Charlie'] = 78;
+scores['Alice'];   // 95
+scores['Eve'];     // null (key missing)
+\`\`\`
+
+## Useful Map Operations
+
+\`\`\`dart
+scores.containsKey('Bob')
+scores.keys.toList()
+scores.values.toList()
+scores.entries.forEach((e) => print('\${e.key}: \${e.value}'));
+scores.update('Alice', (v) => v + 5, ifAbsent: () => 0);
+final merged = {...map1, ...map2}; // spread to merge
+\`\`\`
+
+## Sets
+
+An unordered collection of **unique** values:
+\`\`\`dart
+Set<String> tags = {'dart', 'flutter', 'mobile'};
+tags.add('dart');           // no duplicate
+tags.intersection({...});  // common elements
+tags.union({...});          // all combined
+tags.difference({...});    // in this set but not other
+\`\`\``,
+    tips: [
+      'Map[key] returns null for missing keys — never throws.',
+      'Use map.putIfAbsent(key, () => value) to safely add a key only when absent.',
+      'Set.contains() is O(1) vs List.contains() which is O(n) — prefer sets for membership checks.',
+    ],
+    codeSnippet: `void main() {
+  final text = 'the quick brown fox jumps over the lazy dog';
+  final freq = <String, int>{};
+  for (final word in text.split(' ')) {
+    freq[word] = (freq[word] ?? 0) + 1;
+  }
+  final repeated = freq.entries.where((e) => e.value > 1);
+  print('Repeated words:');
+  for (final e in repeated) print('  \${e.key}: \${e.value}');
+
+  final a = {1, 2, 3, 4, 5};
+  final b = {3, 4, 5, 6, 7};
+  print('\\nUnion: \${a.union(b)}');
+  print('Intersection: \${a.intersection(b)}');
+  print('Difference A-B: \${a.difference(b)}');
+}`,
+    expectedOutput: `Repeated words:\n  the: 2\n\nUnion: {1, 2, 3, 4, 5, 6, 7}\nIntersection: {3, 4, 5}\nDifference A-B: {1, 2}`,
+    quiz: [
+      { question: 'What does a Map return if you access a missing key?', options: ['An exception', 'An empty String', 'null', '0'], correctAnswerIndex: 2 },
+      { question: 'Which Set method returns elements present in both sets?', options: ['union()', 'difference()', 'intersection()', 'overlap()'], correctAnswerIndex: 2 },
+      { question: 'Can a Map have duplicate keys?', options: ['Yes', 'Yes, but only String keys', 'No', 'Only in LinkedHashMap'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: "Given a list of words, build a Map<String, List<String>> grouping words by their first letter. Print each group sorted alphabetically.",
+      starterCode: `void main() {
+  final words = ['banana','apple','avocado','blueberry','cherry','apricot','cantaloupe'];
+
+  // Build grouped map, then print sorted
+}`,
+      solution: `void main() {
+  final words = ['banana','apple','avocado','blueberry','cherry','apricot','cantaloupe'];
+
+  final grouped = <String, List<String>>{};
+  for (final word in words) {
+    grouped.putIfAbsent(word[0].toUpperCase(), () => []).add(word);
+  }
+
+  final sortedKeys = grouped.keys.toList()..sort();
+  for (final key in sortedKeys) {
+    final list = grouped[key]!..sort();
+    print('\$key: \$list');
+  }
+}`,
+    },
+  },
+
+  {
+    id: 38,
+    level: 'Intermediate',
+    title: 'Functional Collection Operations',
+    content: `# Functional Operations on Collections
+
+Dart's Iterable provides functional methods that let you transform, filter, and aggregate data without explicit loops.
+
+## Core Methods
+
+**map()** — transform each element:
+\`\`\`dart
+[1,2,3].map((x) => x * 2).toList(); // [2,4,6]
+\`\`\`
+
+**where()** — filter elements:
+\`\`\`dart
+[1,2,3,4].where((x) => x.isEven).toList(); // [2,4]
+\`\`\`
+
+**reduce() / fold()** — collapse to a single value:
+\`\`\`dart
+[1,2,3,4].reduce((acc, x) => acc + x);        // 10
+[1,2,3,4].fold(1, (acc, x) => acc * x);       // 24
+\`\`\`
+Use \`fold\` when you need a starting value or different return type.
+
+**any() / every()**:
+\`\`\`dart
+[1,2,3].any((x) => x > 2)    // true
+[1,2,3].every((x) => x > 0)  // true
+\`\`\`
+
+**expand()** — flatMap:
+\`\`\`dart
+[[1,2],[3,4]].expand((e) => e).toList(); // [1,2,3,4]
+\`\`\``,
+    tips: [
+      'map() and where() return lazy Iterables — call .toList() only when you need a concrete list.',
+      'Use fold() when the accumulator type differs from the element type.',
+      'Chaining functional operations is more readable than nested loops.',
+    ],
+    codeSnippet: `void main() {
+  final products = [
+    {'name': 'Laptop', 'price': 999.0, 'inStock': true},
+    {'name': 'Phone', 'price': 499.0, 'inStock': false},
+    {'name': 'Tablet', 'price': 349.0, 'inStock': true},
+    {'name': 'Watch', 'price': 199.0, 'inStock': true},
+  ];
+
+  final available = products
+      .where((p) => p['inStock'] == true && (p['price'] as double) < 500)
+      .toList()
+    ..sort((a, b) => (a['price'] as double).compareTo(b['price'] as double));
+
+  print('Available under \$500:');
+  for (final p in available) print('  \${p['name']}: \\\$\${p['price']}');
+
+  final total = products
+      .where((p) => p['inStock'] == true)
+      .fold(0.0, (sum, p) => sum + (p['price'] as double));
+  print('In-stock total: \\\$\$total');
+
+  final names = products.map((p) => p['name']).join(', ');
+  print('All: \$names');
+}`,
+    expectedOutput: `Available under \$500:\n  Watch: \$199.0\n  Tablet: \$349.0\nIn-stock total: \$1547.0\nAll: Laptop, Phone, Tablet, Watch`,
+    quiz: [
+      { question: 'What does .where() do on a List?', options: ['Transforms each element', 'Removes duplicates', 'Filters elements by a condition', 'Sorts the list'], correctAnswerIndex: 2 },
+      { question: 'What is the difference between reduce() and fold()?', options: ['reduce() is async', 'fold() takes a starting value and can return a different type', 'reduce() preserves order', 'They are identical'], correctAnswerIndex: 1 },
+      { question: 'What does .expand() do?', options: ['Increases list capacity', 'Flattens nested iterables into a single iterable', 'Repeats elements', 'Removes nulls'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Given a list of student maps with name and grades (List<int>), compute each average, keep only students ≥70, sort descending, and print name + average.',
+      starterCode: `void main() {
+  final students = [
+    {'name': 'Alice', 'grades': [85, 90, 92]},
+    {'name': 'Bob', 'grades': [55, 60, 65]},
+    {'name': 'Carol', 'grades': [70, 75, 80]},
+    {'name': 'Dave', 'grades': [40, 50, 45]},
+  ];
+
+  // Pipeline: average → filter ≥70 → sort desc → print
+}`,
+      solution: `void main() {
+  final students = [
+    {'name': 'Alice', 'grades': [85, 90, 92]},
+    {'name': 'Bob', 'grades': [55, 60, 65]},
+    {'name': 'Carol', 'grades': [70, 75, 80]},
+    {'name': 'Dave', 'grades': [40, 50, 45]},
+  ];
+
+  double avg(List<int> g) => g.reduce((a, b) => a + b) / g.length;
+
+  final passing = students
+      .map((s) => {'name': s['name'], 'avg': avg(s['grades'] as List<int>)})
+      .where((s) => (s['avg'] as double) >= 70)
+      .toList()
+    ..sort((a, b) => (b['avg'] as double).compareTo(a['avg'] as double));
+
+  for (final s in passing) {
+    print('\${s['name']}: \${(s['avg'] as double).toStringAsFixed(1)}');
+  }
+}`,
+    },
+  },
+
+  {
+    id: 39,
+    level: 'Intermediate',
+    title: 'Exception Handling',
+    content: `# Exception Handling in Dart
+
+Dart uses \`try / catch / on / finally\` for structured error handling.
+
+## Basic Structure
+
+\`\`\`dart
+try {
+  int result = 10 ~/ 0;
+} on IntegerDivisionByZeroException {
+  print('Cannot divide by zero!');
+} catch (e, stack) {
+  print('Error: \$e');
+} finally {
+  print('Always runs');
+}
+\`\`\`
+
+## on vs catch
+
+- \`on ExceptionType\` — matches a specific type
+- \`catch (e)\` — catches anything and gives you the object
+- \`on Type catch (e)\` — both at once
+
+## Throwing
+
+\`\`\`dart
+throw FormatException('Expected a number');
+throw ArgumentError.notNull('email');
+\`\`\`
+
+## Custom Exceptions
+
+\`\`\`dart
+class InsufficientFundsException implements Exception {
+  final double amount;
+  const InsufficientFundsException(this.amount);
+  @override String toString() => 'Need \$amount more';
+}
+\`\`\``,
+    tips: [
+      'Put specific on clauses before a general catch.',
+      'Always use finally for resource cleanup — it runs whether or not an exception was thrown.',
+      'Custom exception classes make your API much clearer than throwing plain strings.',
+    ],
+    codeSnippet: `class ValidationException implements Exception {
+  final String field;
+  final String message;
+  const ValidationException(this.field, this.message);
+  @override String toString() => 'ValidationException[\$field]: \$message';
+}
+
+double parsePositiveDouble(String input) {
+  final value = double.tryParse(input);
+  if (value == null) throw FormatException('Not a number: "\$input"');
+  if (value <= 0) throw ValidationException('input', 'Must be positive');
+  return value;
+}
+
+void process(String input) {
+  try {
+    print('Parsed: \${parsePositiveDouble(input)}');
+  } on ValidationException catch (e) {
+    print('Validation: \$e');
+  } on FormatException catch (e) {
+    print('Format: \${e.message}');
+  } finally {
+    print('Done: "\$input"');
+  }
+}
+
+void main() {
+  process('42.5');
+  process('abc');
+  process('-5');
+}`,
+    expectedOutput: `Parsed: 42.5\nDone: "42.5"\nFormat: Not a number: "abc"\nDone: "abc"\nValidation: ValidationException[input]: Must be positive\nDone: "-5"`,
+    quiz: [
+      { question: 'What is the difference between on and catch in a try block?', options: ['on is for async; catch is for sync', 'on matches by type; catch gives you the exception object', 'catch is deprecated', 'They are identical'], correctAnswerIndex: 1 },
+      { question: 'When does the finally block run?', options: ['Only when no exception is thrown', 'Only when an exception is thrown', 'Always', 'Only when re-throwing'], correctAnswerIndex: 2 },
+      { question: 'What should a custom exception implement?', options: ['Error', 'Throwable', 'Exception', 'RuntimeException'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create a NetworkException with statusCode and message. Write fetchData(int code) that throws for codes ≥400 and returns "Data OK" for 200. Handle 404 differently from other errors in main.',
+      starterCode: `class NetworkException implements Exception {
+  final int statusCode;
+  final String message;
+  const NetworkException(this.statusCode, this.message);
+  @override String toString() => 'NetworkException \$statusCode: \$message';
+}
+
+String fetchData(int statusCode) {
+  // Throw or return
+}
+
+void main() {
+  for (final code in [200, 404, 500]) {
+    try {
+      print(fetchData(code));
+    } on NetworkException catch (e) {
+      // Handle 404 vs other errors differently
+    }
+  }
+}`,
+      solution: `class NetworkException implements Exception {
+  final int statusCode;
+  final String message;
+  const NetworkException(this.statusCode, this.message);
+  @override String toString() => 'NetworkException \$statusCode: \$message';
+}
+
+String fetchData(int statusCode) {
+  if (statusCode == 404) throw NetworkException(404, 'Not Found');
+  if (statusCode >= 400) throw NetworkException(statusCode, 'Server Error');
+  return 'Data OK';
+}
+
+void main() {
+  for (final code in [200, 404, 500]) {
+    try {
+      print(fetchData(code));
+    } on NetworkException catch (e) {
+      if (e.statusCode == 404) print('Resource missing: \${e.message}');
+      else print('Server problem: \$e');
+    }
+  }
+}`,
+    },
+  },
+
+  {
+    id: 40,
+    level: 'Intermediate',
+    title: 'Async Programming — Future and async/await',
+    content: `# Asynchronous Programming with Future
+
+Many operations take time — HTTP calls, file reads, timers. Dart uses \`Future<T>\` to represent a value that will be available later, keeping the UI responsive.
+
+## async / await
+
+\`\`\`dart
+Future<String> fetchUser(int id) async {
+  await Future.delayed(Duration(seconds: 1));
+  return 'User \$id';
+}
+
+void main() async {
+  print('Fetching...');
+  final user = await fetchUser(42);
+  print('Got: \$user');
+}
+\`\`\`
+
+## Error Handling
+
+\`\`\`dart
+try {
+  final data = await fetchData();
+} catch (e) {
+  print('Failed: \$e');
+}
+\`\`\`
+
+## Future.wait — Parallel Execution
+
+\`\`\`dart
+final results = await Future.wait([
+  fetchUser(1),
+  fetchUser(2),
+  fetchUser(3),
+]);
+\`\`\``,
+    tips: [
+      'An async function always returns a Future, even if you write return 42 — it becomes Future<int>.',
+      'Use Future.wait to run multiple Futures in parallel rather than awaiting sequentially.',
+      "Prefer async/await over .then() chaining — it's more readable.",
+    ],
+    codeSnippet: `Future<double> getRate(String currency) async {
+  await Future.delayed(Duration(milliseconds: 50));
+  final rates = {'EUR': 0.92, 'GBP': 0.79, 'JPY': 149.5};
+  final rate = rates[currency];
+  if (rate == null) throw ArgumentError('Unknown: \$currency');
+  return rate;
+}
+
+Future<void> convert(double amount, String currency) async {
+  try {
+    final rate = await getRate(currency);
+    print('\\\$\${amount.toStringAsFixed(2)} = \${(amount*rate).toStringAsFixed(2)} \$currency');
+  } on ArgumentError catch (e) {
+    print('Error: \$e');
+  }
+}
+
+void main() async {
+  await convert(100, 'EUR');
+  await convert(250, 'GBP');
+  await convert(50, 'XYZ');
+
+  final rates = await Future.wait(
+    ['EUR','GBP','JPY'].map(getRate));
+  print('Rates: \$rates');
+}`,
+    expectedOutput: `\$100.00 = 92.00 EUR\n\$250.00 = 197.50 GBP\nError: Invalid argument(s): Unknown: XYZ\nRates: [0.92, 0.79, 149.5]`,
+    quiz: [
+      { question: 'What does the await keyword do?', options: ['Blocks the entire program', 'Pauses the current async function until the Future completes', 'Cancels the Future', 'Runs the Future in a new thread'], correctAnswerIndex: 1 },
+      { question: 'What return type does an async function always have?', options: ['void', 'The raw type', 'Future<T>', 'Stream<T>'], correctAnswerIndex: 2 },
+      { question: 'What is the advantage of Future.wait over sequential awaiting?', options: ['It is safer', 'Runs Futures in parallel, reducing total wait time', 'Handles errors automatically', 'Required for more than 3 Futures'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write async fetchProducts() returning 3 products after 200ms, and fetchPrice(String name) returning a price after 100ms. In main, fetch products, then get all prices in parallel with Future.wait.',
+      starterCode: `import 'dart:async';
+
+Future<List<String>> fetchProducts() async {
+  // 200ms delay, return ['Laptop','Phone','Tablet']
+}
+
+Future<double> fetchPrice(String name) async {
+  // 100ms delay, return a price
+}
+
+void main() async {
+  // Fetch products, then prices in parallel
+}`,
+      solution: `import 'dart:async';
+
+Future<List<String>> fetchProducts() async {
+  await Future.delayed(Duration(milliseconds: 200));
+  return ['Laptop', 'Phone', 'Tablet'];
+}
+
+Future<double> fetchPrice(String name) async {
+  await Future.delayed(Duration(milliseconds: 100));
+  return {'Laptop': 999.0, 'Phone': 499.0, 'Tablet': 349.0}[name] ?? 0;
+}
+
+void main() async {
+  final products = await fetchProducts();
+  final prices = await Future.wait(products.map(fetchPrice));
+  for (int i = 0; i < products.length; i++) {
+    print('\${products[i]}: \\\$\${prices[i]}');
+  }
+}`,
+    },
+  },
+
+  {
+    id: 41,
+    level: 'Intermediate',
+    title: 'Streams',
+    content: `# Streams in Dart
+
+A \`Stream\` is like a Future that delivers multiple values over time — a sequence of asynchronous events.
+
+## Creating Streams
+
+\`\`\`dart
+// Async generator — the most readable approach
+Stream<int> countDown(int from) async* {
+  for (int i = from; i >= 0; i--) {
+    await Future.delayed(Duration(milliseconds: 500));
+    yield i;
+  }
+}
+\`\`\`
+
+## await for — Async Loop
+
+\`\`\`dart
+await for (final value in countDown(5)) {
+  print(value);
+}
+\`\`\`
+
+## listen()
+
+\`\`\`dart
+stream.listen(
+  (data) => print('Data: \$data'),
+  onError: (e) => print('Error: \$e'),
+  onDone: () => print('Done'),
+);
+\`\`\`
+
+## Transformations
+
+\`\`\`dart
+stream.where((n) => n.isEven).map((n) => n * 10).listen(print);
+\`\`\``,
+    tips: [
+      'async* with yield creates streams cleanly — prefer it over StreamController for simple cases.',
+      'await for is the cleanest way to consume a stream inside an async function.',
+      'Always handle onDone and onError when listening to a stream in production code.',
+    ],
+    codeSnippet: `Stream<String> weatherUpdates() async* {
+  final conditions = ['Sunny', 'Cloudy', 'Rainy', 'Windy', 'Stormy'];
+  for (final c in conditions) {
+    await Future.delayed(Duration(milliseconds: 100));
+    yield c;
+  }
+}
+
+Stream<int> fibonacci() async* {
+  int a = 0, b = 1;
+  while (true) {
+    yield a;
+    final t = a + b; a = b; b = t;
+    await Future.delayed(Duration(milliseconds: 1));
+  }
+}
+
+void main() async {
+  print('Weather:');
+  await for (final w in weatherUpdates()) print('  \$w');
+
+  print('\\nFirst 8 Fibonacci:');
+  final fibs = <int>[];
+  await for (final n in fibonacci()) {
+    fibs.add(n);
+    if (fibs.length == 8) break;
+  }
+  print(fibs);
+}`,
+    expectedOutput: `Weather:\n  Sunny\n  Cloudy\n  Rainy\n  Windy\n  Stormy\n\nFirst 8 Fibonacci:\n[0, 1, 1, 2, 3, 5, 8, 13]`,
+    quiz: [
+      { question: 'What is the main difference between a Future and a Stream?', options: ['Futures are faster', 'A Stream delivers multiple values over time; a Future delivers one', 'Streams are only for I/O', 'Futures can be cancelled; Streams cannot'], correctAnswerIndex: 1 },
+      { question: 'What keyword marks a function as an async generator?', options: ['async', 'sync*', 'stream', 'async*'], correctAnswerIndex: 3 },
+      { question: 'Which loop construct consumes a stream sequentially?', options: ['for-in', 'while-stream', 'await for', 'forEach'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Write async* tickerStream(int count, int ms) that yields 1..count with a delay between each. In main, listen and print each value.',
+      starterCode: `Stream<int> tickerStream(int count, int ms) async* {
+  // yield 1 through count with delay
+}
+
+void main() async {
+  await for (final tick in tickerStream(5, 100)) {
+    print('Tick \$tick');
+  }
+}`,
+      solution: `Stream<int> tickerStream(int count, int ms) async* {
+  for (int i = 1; i <= count; i++) {
+    await Future.delayed(Duration(milliseconds: ms));
+    yield i;
+  }
+}
+
+void main() async {
+  await for (final tick in tickerStream(5, 100)) {
+    print('Tick \$tick');
+  }
+  print('Done');
+}`,
+    },
+  },
+
+  {
+    id: 42,
+    level: 'Intermediate',
+    title: 'Enums and Sealed Classes',
+    content: `# Enums and Sealed Classes
+
+## Enhanced Enums (Dart 2.17+)
+
+Enums can have fields, methods, and implement interfaces:
+\`\`\`dart
+enum Planet {
+  mercury(3.7), venus(8.87), earth(9.81);
+  final double gravity;
+  const Planet(this.gravity);
+  double weight(double mass) => mass * gravity;
+}
+print(Planet.earth.weight(70)); // 686.7
+\`\`\`
+
+## Sealed Classes (Dart 3+)
+
+A \`sealed\` class can only be subclassed within the same file. Combined with switch expressions, every case must be handled — the compiler will warn you:
+\`\`\`dart
+sealed class Result<T> {}
+class Success<T> extends Result<T> { final T value; Success(this.value); }
+class Failure<T> extends Result<T> { final String error; Failure(this.error); }
+
+String describe<T>(Result<T> r) => switch (r) {
+  Success(value: final v) => 'OK: \$v',
+  Failure(error: final e) => 'Err: \$e',
+};
+\`\`\``,
+    tips: [
+      'Enhanced enums replace many patterns that used to need a full class.',
+      'Sealed classes + switch expressions = exhaustive pattern matching with compiler enforcement.',
+      'Use sealed classes to model UI states (Loading / Success / Error) in Flutter apps.',
+    ],
+    codeSnippet: `enum OrderStatus {
+  pending('Pending'),
+  processing('Processing'),
+  shipped('Shipped'),
+  delivered('Delivered'),
+  cancelled('Cancelled');
+
+  final String label;
+  const OrderStatus(this.label);
+  bool get isFinal => this == delivered || this == cancelled;
+}
+
+sealed class ApiResult<T> {}
+class ApiSuccess<T> extends ApiResult<T> {
+  final T data; const ApiSuccess(this.data);
+}
+class ApiError<T> extends ApiResult<T> {
+  final String message; final int code;
+  const ApiError(this.message, this.code);
+}
+
+String handle<T>(ApiResult<T> r) => switch (r) {
+  ApiSuccess(data: final d) => 'OK: \$d',
+  ApiError(message: final m, code: final c) => 'Error \$c: \$m',
+};
+
+void main() {
+  for (final s in OrderStatus.values) {
+    print('\${s.label} — final: \${s.isFinal}');
+  }
+  print(handle(ApiSuccess('user data')));
+  print(handle(ApiError<String>('Not Found', 404)));
+}`,
+    expectedOutput: `Pending — final: false\nProcessing — final: false\nShipped — final: false\nDelivered — final: true\nCancelled — final: true\nOK: user data\nError 404: Not Found`,
+    quiz: [
+      { question: 'What can enhanced Dart enums have that traditional enums cannot?', options: ['More than 10 values', 'Fields, constructors, and methods', 'Generic type parameters', 'Dynamic values'], correctAnswerIndex: 1 },
+      { question: 'What does the sealed keyword guarantee?', options: ['All subclasses are private', 'All subclasses are in the same file, enabling exhaustive switch', 'No subclasses are allowed', 'Exactly two subclasses'], correctAnswerIndex: 1 },
+      { question: 'What happens in a switch on a sealed class when you miss a subtype?', options: ['A runtime exception', 'Silently ignored', 'A compile-time warning or error', 'Default branch runs'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create a sealed Shape with subclasses Circle(radius), Rect(width,height), Triangle(base,height). Write double area(Shape s) using a switch expression. Test all three.',
+      starterCode: `import 'dart:math';
+
+sealed class Shape {}
+class Circle extends Shape { final double radius; Circle(this.radius); }
+class Rect extends Shape { final double width, height; Rect(this.width, this.height); }
+class Triangle extends Shape { final double base, height; Triangle(this.base, this.height); }
+
+double area(Shape s) => switch (s) {
+  // handle all 3
+};
+
+void main() {
+  print(area(Circle(5)).toStringAsFixed(2));
+  print(area(Rect(4, 6)).toStringAsFixed(2));
+  print(area(Triangle(3, 8)).toStringAsFixed(2));
+}`,
+      solution: `import 'dart:math';
+
+sealed class Shape {}
+class Circle extends Shape { final double radius; Circle(this.radius); }
+class Rect extends Shape { final double width, height; Rect(this.width, this.height); }
+class Triangle extends Shape { final double base, height; Triangle(this.base, this.height); }
+
+double area(Shape s) => switch (s) {
+  Circle(radius: final r) => pi * r * r,
+  Rect(width: final w, height: final h) => w * h,
+  Triangle(base: final b, height: final h) => 0.5 * b * h,
+};
+
+void main() {
+  print(area(Circle(5)).toStringAsFixed(2));
+  print(area(Rect(4, 6)).toStringAsFixed(2));
+  print(area(Triangle(3, 8)).toStringAsFixed(2));
+}`,
+    },
+  },
+
+  {
+    id: 43,
+    level: 'Intermediate',
+    title: 'Pattern Matching (Dart 3)',
+    content: `# Pattern Matching in Dart 3
+
+Dart 3 introduced first-class patterns for concise destructuring and conditional logic.
+
+## Switch Expressions with Patterns
+
+\`\`\`dart
+final desc = switch (point) {
+  (0, 0) => 'Origin',
+  (final x, 0) => 'On X-axis at \$x',
+  (0, final y) => 'On Y-axis at \$y',
+  (final x, final y) => '(\$x, \$y)',
+};
+\`\`\`
+
+## List Patterns
+
+\`\`\`dart
+switch (list) {
+  case []: print('empty');
+  case [final x]: print('single: \$x');
+  case [final x, ...]: print('starts with \$x');
+}
+\`\`\`
+
+## Guard Clauses (when)
+
+\`\`\`dart
+switch (n) {
+  case final x when x > 0 => 'positive',
+  case final x when x < 0 => 'negative',
+  _ => 'zero',
+};
+\`\`\`
+
+## Record Destructuring
+
+\`\`\`dart
+final (name, age) = ('Alice', 30);
+print('\$name is \$age');
+\`\`\``,
+    tips: [
+      'The when guard adds boolean conditions beyond structural matching.',
+      'Patterns can be nested — a map pattern can contain a list pattern.',
+      'Record patterns are great for functions returning multiple values.',
+    ],
+    codeSnippet: `(String grade, String comment) classify(int score) => switch (score) {
+  >= 95 => ('A+', 'Outstanding'),
+  >= 90 => ('A', 'Excellent'),
+  >= 80 => ('B', 'Very Good'),
+  >= 70 => ('C', 'Good'),
+  >= 60 => ('D', 'Passing'),
+  _ => ('F', 'Failed'),
+};
+
+String describeList(List<int> list) => switch (list) {
+  [] => 'empty',
+  [final x] => 'single: \$x',
+  [final x, final y] => 'pair: \$x and \$y',
+  [final x, ...final rest] => 'starts with \$x, \${rest.length} more',
+};
+
+void main() {
+  for (final score in [97, 85, 72, 55]) {
+    final (grade, comment) = classify(score);
+    print('\$score → \$grade (\$comment)');
+  }
+  for (final list in [[], [42], [1,2], [1,2,3,4,5]]) {
+    print('\$list → \${describeList(list)}');
+  }
+}`,
+    expectedOutput: `97 → A+ (Outstanding)\n85 → B (Very Good)\n72 → C (Good)\n55 → F (Failed)\n[] → empty\n[42] → single: 42\n[1, 2] → pair: 1 and 2\n[1, 2, 3, 4, 5] → starts with 1, 4 more`,
+    quiz: [
+      { question: 'What does the ... (rest) pattern match in a list pattern?', options: ['An empty list', 'Exactly one element', 'Zero or more remaining elements', 'A nested list'], correctAnswerIndex: 2 },
+      { question: 'What does the when keyword do in a switch case?', options: ['Matches a type', 'Adds a boolean guard condition', 'Skips the case', 'Matches a wildcard'], correctAnswerIndex: 1 },
+      { question: 'What are Records used for in pattern matching?', options: ['Database storage', 'Returning and destructuring multiple values concisely', 'Replacing Map entirely', 'Defining immutable classes'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write classifyPoint((int,int) p) using a switch expression that returns "Origin", "On X-axis", "On Y-axis", or "Quadrant I/II/III/IV" using tuple patterns and when guards.',
+      starterCode: `String classifyPoint((int, int) p) => switch (p) {
+  // Match all cases
+};
+
+void main() {
+  print(classifyPoint((0, 0)));
+  print(classifyPoint((3, 0)));
+  print(classifyPoint((0, -2)));
+  print(classifyPoint((2, 3)));
+  print(classifyPoint((-1, -3)));
+}`,
+      solution: `String classifyPoint((int, int) p) => switch (p) {
+  (0, 0) => 'Origin',
+  (_, 0) => 'On X-axis',
+  (0, _) => 'On Y-axis',
+  (final x, final y) when x > 0 && y > 0 => 'Quadrant I',
+  (final x, final y) when x < 0 && y > 0 => 'Quadrant II',
+  (final x, final y) when x < 0 && y < 0 => 'Quadrant III',
+  _ => 'Quadrant IV',
+};
+
+void main() {
+  print(classifyPoint((0, 0)));
+  print(classifyPoint((3, 0)));
+  print(classifyPoint((0, -2)));
+  print(classifyPoint((2, 3)));
+  print(classifyPoint((-1, -3)));
+}`,
+    },
+  },
+
+  {
+    id: 44,
+    level: 'Intermediate',
+    title: 'Extension Methods',
+    content: `# Extension Methods
+
+Extension methods let you add new functionality to existing types — including types you did not write — without modifying them.
+
+## Defining an Extension
+
+\`\`\`dart
+extension StringUtils on String {
+  bool get isEmail => contains('@') && contains('.');
+  String capitalize() =>
+      isEmpty ? this : this[0].toUpperCase() + substring(1);
+  String truncate(int max) =>
+      length <= max ? this : '\${substring(0, max)}...';
+}
+
+print('hello'.capitalize());          // Hello
+print('user@example.com'.isEmail);    // true
+\`\`\`
+
+## Generic Extensions
+
+\`\`\`dart
+extension ListUtils<T> on List<T> {
+  T get random => this[DateTime.now().millisecond % length];
+}
+\`\`\`
+
+## Conflict Resolution
+
+If two extensions define the same method, use the explicit form:
+\`\`\`dart
+ExtensionName(object).method()
+\`\`\``,
+    tips: [
+      'Extensions are resolved at compile-time — they do not change the runtime type.',
+      'Give extensions meaningful names to aid disambiguation.',
+      'Great for adding domain helpers to primitives (int, String) across your app.',
+    ],
+    codeSnippet: `extension IntUtils on int {
+  bool get isPrime {
+    if (this < 2) return false;
+    for (int i = 2; i * i <= this; i++) {
+      if (this % i == 0) return false;
+    }
+    return true;
+  }
+  String get ordinal {
+    if (this % 100 >= 11 && this % 100 <= 13) return '\${this}th';
+    return switch (this % 10) {
+      1 => '\${this}st', 2 => '\${this}nd', 3 => '\${this}rd', _ => '\${this}th'
+    };
+  }
+}
+
+extension StringUtils on String {
+  bool get isPalindrome => this == split('').reversed.join();
+  List<String> get words => trim().split(RegExp(r'\\s+'));
+}
+
+void main() {
+  print(7.isPrime);
+  print(10.isPrime);
+  print(1.ordinal);
+  print(2.ordinal);
+  print(11.ordinal);
+  print('racecar'.isPalindrome);
+  print('hello'.isPalindrome);
+  print('hello world dart'.words);
+}`,
+    expectedOutput: `true\nfalse\n1st\n2nd\n11th\ntrue\nfalse\n[hello, world, dart]`,
+    quiz: [
+      { question: 'What do extension methods allow?', options: ['Adding private fields to existing classes', 'Adding methods to existing classes without modifying them', 'Overriding existing methods', 'Creating hidden constructors'], correctAnswerIndex: 1 },
+      { question: 'When are extension methods resolved?', options: ['At runtime', 'At compile-time', 'By the VM dynamically', 'During linking'], correctAnswerIndex: 1 },
+      { question: 'What happens when two extensions define the same method name?', options: ['First one wins', 'Runtime error', 'Must use explicit extension call syntax', 'Dart picks the more specific one'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create a DurationUtils extension on int with getters seconds, minutes, hours returning Duration objects. Add a DateTime get fromNow that adds that many seconds to now. Test all three.',
+      starterCode: `extension DurationUtils on int {
+  // Add seconds, minutes, hours getters
+  // Add fromNow getter
+}
+
+void main() {
+  print(90.seconds.inMinutes);   // 1
+  print(2.hours.inMinutes);       // 120
+  print(30.minutes.inSeconds);    // 1800
+}`,
+      solution: `extension DurationUtils on int {
+  Duration get seconds => Duration(seconds: this);
+  Duration get minutes => Duration(minutes: this);
+  Duration get hours => Duration(hours: this);
+  DateTime get fromNow => DateTime.now().add(seconds);
+}
+
+void main() {
+  print(90.seconds.inMinutes);   // 1
+  print(2.hours.inMinutes);       // 120
+  print(30.minutes.inSeconds);    // 1800
+  print(60.fromNow.isAfter(DateTime.now())); // true
+}`,
+    },
+  },
+
+  {
+    id: 45,
+    level: 'Intermediate',
+    title: 'Records (Dart 3)',
+    content: `# Records
+
+Records are built-in, anonymous, immutable value types (Dart 3). Perfect for grouping values without a full class.
+
+## Creating Records
+
+\`\`\`dart
+// Positional
+final point = (10, 20);
+print(point.\$1); // 10
+print(point.\$2); // 20
+
+// Named fields
+final user = (name: 'Alice', age: 30);
+print(user.name); // Alice
+\`\`\`
+
+## In Function Returns
+
+\`\`\`dart
+(String, int) nameAndAge() => ('Alice', 30);
+final (name, age) = nameAndAge();
+\`\`\`
+
+## Record Equality
+
+Records use structural equality — two records with the same values are equal:
+\`\`\`dart
+print((1, 2) == (1, 2));               // true
+print((name: 'Alice') == (name: 'Alice')); // true
+\`\`\``,
+    tips: [
+      'Records are immutable — you cannot change their fields after creation.',
+      'Prefer named fields for records with more than 2 fields.',
+      'Records replace the need for small data classes or passing Maps around.',
+    ],
+    codeSnippet: `(double min, double max, double average) stats(List<double> values) {
+  final sorted = [...values]..sort();
+  final sum = values.reduce((a, b) => a + b);
+  return (sorted.first, sorted.last, sum / values.length);
+}
+
+({String city, String country, double lat}) geocode(String place) {
+  final db = {
+    'Cairo': (city: 'Cairo', country: 'Egypt', lat: 30.04),
+    'Paris': (city: 'Paris', country: 'France', lat: 48.86),
+  };
+  return db[place] ?? (city: place, country: 'Unknown', lat: 0);
+}
+
+void main() {
+  final temps = [22.5, 18.0, 30.1, 25.5, 19.8];
+  final (min, max, avg) = stats(temps);
+  print('Min: \$min, Max: \$max, Avg: \${avg.toStringAsFixed(1)}');
+
+  final loc = geocode('Cairo');
+  print('\${loc.city}, \${loc.country}: \${loc.lat}°N');
+
+  print((1, 'a') == (1, 'a'));
+}`,
+    expectedOutput: `Min: 18.0, Max: 30.1, Avg: 23.2\nCairo, Egypt: 30.04°N\ntrue`,
+    quiz: [
+      { question: 'How do you access the second positional field of (10, 20)?', options: ['record[1]', 'record.second', 'record.\$2', 'record.get(2)'], correctAnswerIndex: 2 },
+      { question: 'Are Dart records mutable?', options: ['Yes', 'Only named fields', 'No — records are immutable', 'Depends on the type'], correctAnswerIndex: 2 },
+      { question: 'How are two records compared for equality?', options: ['By reference', 'By hash code only', 'By structural equality (values)', 'They cannot be compared'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Write (int words, int chars, int lines) analyzeText(String text) that counts words, non-space characters, and lines. Test with a multi-line string.',
+      starterCode: `(int words, int chars, int lines) analyzeText(String text) {
+  // Count words, non-space chars, lines
+}
+
+void main() {
+  const sample = """Hello world
+Dart is great
+I love records""";
+
+  final (words, chars, lines) = analyzeText(sample);
+  print('Words: \$words');
+  print('Chars: \$chars');
+  print('Lines: \$lines');
+}`,
+      solution: `(int words, int chars, int lines) analyzeText(String text) {
+  final wordList = text.split(RegExp(r'\\s+')).where((w) => w.isNotEmpty);
+  final charCount = text.replaceAll(RegExp(r'\\s'), '').length;
+  final lineCount = text.split('\\n').length;
+  return (wordList.length, charCount, lineCount);
+}
+
+void main() {
+  const sample = """Hello world
+Dart is great
+I love records""";
+  final (words, chars, lines) = analyzeText(sample);
+  print('Words: \$words');
+  print('Chars: \$chars');
+  print('Lines: \$lines');
+}`,
+    },
+  },
+
+  {
+    id: 46,
+    level: 'Intermediate',
+    title: 'Isolates and Concurrency',
+    content: `# Isolates — Dart's Concurrency Model
+
+Dart is single-threaded per isolate. To achieve true parallelism without blocking the UI, you spawn additional isolates. Each has its own memory and communicates via message passing.
+
+## Isolate.run() (Dart 2.19+)
+
+The simplest way to run a one-shot computation in a background isolate:
+\`\`\`dart
+final result = await Isolate.run(() => heavyComputation(data));
+\`\`\`
+
+## Running Tasks in Parallel
+
+\`\`\`dart
+final [sum, primeCount] = await Future.wait([
+  Isolate.run(() => sumRange(1, 10000000)),
+  Isolate.run(() => findPrimes(100000).length),
+]);
+\`\`\`
+
+## Key Rules
+
+- Isolates do NOT share memory.
+- Only primitive types, lists, maps, and SendPort can be passed.
+- Entry points must be top-level or static functions.`,
+    tips: [
+      'Use Isolate.run() for modern Dart — cleanest way to offload heavy work.',
+      'In Flutter, use compute() helper for JSON parsing of large payloads.',
+      'Never do heavy CPU work on the main isolate — it freezes the UI.',
+    ],
+    codeSnippet: `import 'dart:isolate';
+
+int sumRange(List<int> range) {
+  int total = 0;
+  for (int i = range[0]; i <= range[1]; i++) total += i;
+  return total;
+}
+
+List<int> sievePrimes(int limit) {
+  final sieve = List.filled(limit + 1, true);
+  sieve[0] = sieve[1] = false;
+  for (int i = 2; i * i <= limit; i++) {
+    if (sieve[i]) for (int j = i*i; j <= limit; j += i) sieve[j] = false;
+  }
+  return [for (int i = 2; i <= limit; i++) if (sieve[i]) i];
+}
+
+void main() async {
+  print('Running parallel tasks...');
+  final sw = Stopwatch()..start();
+
+  final results = await Future.wait([
+    Isolate.run(() => sumRange([1, 10000000])),
+    Isolate.run(() => sievePrimes(100000).length),
+  ]);
+
+  sw.stop();
+  print('Sum 1..10M: \${results[0]}');
+  print('Primes ≤100k: \${results[1]}');
+  print('Time: \${sw.elapsedMilliseconds}ms');
+}`,
+    expectedOutput: `Running parallel tasks...\nSum 1..10M: 50000005000000\nPrimes ≤100k: 9592\nTime: <N>ms`,
+    quiz: [
+      { question: 'How do Dart isolates communicate?', options: ['Shared memory', 'Global variables', 'Message passing via SendPort/ReceivePort', 'Semaphores'], correctAnswerIndex: 2 },
+      { question: 'What is the simplest API for one-shot background computation?', options: ['Thread.run()', 'Worker()', 'Isolate.run()', 'async.spawn()'], correctAnswerIndex: 2 },
+      { question: 'Do isolates share memory?', options: ['Yes, always', 'Only primitives', 'No — each has its own heap', 'Only const objects'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Write top-level int countWords(String text). Use Isolate.run() in main to count words in two large strings simultaneously with Future.wait, then print both counts.',
+      starterCode: `import 'dart:isolate';
+
+int countWords(String text) {
+  // Count whitespace-separated words
+}
+
+void main() async {
+  final t1 = 'the quick brown fox ' * 10000;
+  final t2 = 'dart flutter mobile ' * 8000;
+  // Run both in parallel
+}`,
+      solution: `import 'dart:isolate';
+
+int countWords(String text) =>
+    text.trim().split(RegExp(r'\\s+')).where((w) => w.isNotEmpty).length;
+
+void main() async {
+  final t1 = 'the quick brown fox ' * 10000;
+  final t2 = 'dart flutter mobile ' * 8000;
+
+  final [c1, c2] = await Future.wait([
+    Isolate.run(() => countWords(t1)),
+    Isolate.run(() => countWords(t2)),
+  ]);
+  print('Text 1: \$c1 words');
+  print('Text 2: \$c2 words');
+}`,
+    },
+  },
+
+  {
+    id: 47,
+    level: 'Intermediate',
+    title: 'File I/O with dart:io',
+    content: `# File I/O with dart:io
+
+The \`dart:io\` library provides file system access. Available in Dart CLI and Flutter mobile/desktop — NOT in Flutter web.
+
+## Reading
+
+\`\`\`dart
+import 'dart:io';
+
+final content = await File('data.txt').readAsString();
+final lines   = await File('data.txt').readAsLines();
+\`\`\`
+
+## Writing
+
+\`\`\`dart
+await File('out.txt').writeAsString('Hello!');
+// Append mode:
+await File('log.txt').writeAsString('entry\\n', mode: FileMode.append);
+\`\`\`
+
+## Checking Existence
+
+\`\`\`dart
+if (await File('data.txt').exists()) {
+  final stat = await File('data.txt').stat();
+  print(stat.size);
+}
+\`\`\`
+
+## Directories
+
+\`\`\`dart
+await Directory('folder').create(recursive: true);
+await for (final e in Directory('.').list()) print(e.path);
+\`\`\``,
+    tips: [
+      'Always use async file methods — sync versions block the event loop.',
+      'Wrap file operations in try/catch — files may not exist or permissions may be denied.',
+      'dart:io is unavailable in web builds.',
+    ],
+    codeSnippet: `import 'dart:io';
+
+Future<void> writeConfig(Map<String, String> cfg, String path) async {
+  final buf = StringBuffer();
+  for (final e in cfg.entries) buf.writeln('\${e.key}=\${e.value}');
+  await File(path).writeAsString(buf.toString());
+  print('Written to \$path');
+}
+
+Future<Map<String, String>> readConfig(String path) async {
+  final file = File(path);
+  if (!await file.exists()) throw FileSystemException('Not found', path);
+  final lines = await file.readAsLines();
+  return Map.fromEntries(
+    lines.where((l) => l.contains('=')).map((l) {
+      final i = l.indexOf('=');
+      return MapEntry(l.substring(0, i).trim(), l.substring(i + 1).trim());
+    }),
+  );
+}
+
+void main() async {
+  const path = '/tmp/app_config.txt';
+  await writeConfig({'host': 'localhost', 'port': '8080', 'debug': 'true'}, path);
+  final cfg = await readConfig(path);
+  print('Config: \$cfg');
+  await File(path).delete();
+  print('Deleted');
+}`,
+    expectedOutput: `Written to /tmp/app_config.txt\nConfig: {host: localhost, port: 8080, debug: true}\nDeleted`,
+    quiz: [
+      { question: 'Which library provides file system access in Dart?', options: ['dart:core', 'dart:convert', 'dart:async', 'dart:io'], correctAnswerIndex: 3 },
+      { question: 'Is dart:io available in Flutter web apps?', options: ['Yes', 'Only for reading', 'No', 'Only with a package'], correctAnswerIndex: 2 },
+      { question: 'Which FileMode appends without overwriting?', options: ['FileMode.create', 'FileMode.write', 'FileMode.truncate', 'FileMode.append'], correctAnswerIndex: 3 },
+    ],
+    exercise: {
+      instruction: 'Write appendLog(String path, String msg) that appends a timestamped line, and readLogs(String path) returning all lines. Write 3 logs, read them back, then delete the file.',
+      starterCode: `import 'dart:io';
+
+Future<void> appendLog(String path, String message) async {
+  // Append "[timestamp] message\\n"
+}
+
+Future<List<String>> readLogs(String path) async {
+  // Return list of lines
+}
+
+void main() async {
+  const path = '/tmp/app.log';
+  await appendLog(path, 'App started');
+  await appendLog(path, 'User logged in');
+  await appendLog(path, 'Request processed');
+  final logs = await readLogs(path);
+  for (final l in logs) print(l);
+  await File(path).delete();
+}`,
+      solution: `import 'dart:io';
+
+Future<void> appendLog(String path, String message) async {
+  final ts = DateTime.now().toString().substring(0, 19);
+  await File(path).writeAsString('[\$ts] \$message\\n', mode: FileMode.append);
+}
+
+Future<List<String>> readLogs(String path) async {
+  final f = File(path);
+  if (!await f.exists()) return [];
+  return f.readAsLines();
+}
+
+void main() async {
+  const path = '/tmp/app.log';
+  await appendLog(path, 'App started');
+  await appendLog(path, 'User logged in');
+  await appendLog(path, 'Request processed');
+  final logs = await readLogs(path);
+  for (final l in logs) print(l);
+  await File(path).delete();
+}`,
+    },
+  },
+
+  {
+    id: 48,
+    level: 'Intermediate',
+    title: 'JSON and dart:convert',
+    content: `# JSON Serialization with dart:convert
+
+\`dart:convert\` provides \`json.encode()\` and \`json.decode()\` for working with JSON APIs.
+
+## Decoding
+
+\`\`\`dart
+import 'dart:convert';
+
+final map = json.decode('{"name":"Alice","age":30}') as Map<String, dynamic>;
+print(map['name']); // Alice
+\`\`\`
+
+## Encoding
+
+\`\`\`dart
+final str = json.encode({'name': 'Bob', 'scores': [85, 92]});
+\`\`\`
+
+## Model Classes
+
+The standard pattern — \`fromJson\` factory + \`toJson\` method:
+\`\`\`dart
+class User {
+  final String name;
+  final int age;
+  User({required this.name, required this.age});
+
+  factory User.fromJson(Map<String, dynamic> j) =>
+      User(name: j['name'], age: j['age']);
+
+  Map<String, dynamic> toJson() => {'name': name, 'age': age};
+}
+\`\`\`
+
+## Lists of Objects
+
+\`\`\`dart
+final users = (json.decode(raw) as List)
+    .map((e) => User.fromJson(e)).toList();
+\`\`\``,
+    tips: [
+      'json.decode returns dynamic — cast it to Map<String,dynamic> or List explicitly.',
+      'The factory fromJson pattern is the Dart convention for deserialisation.',
+      'For large projects, use code generators like json_serializable to avoid boilerplate.',
+    ],
+    codeSnippet: `import 'dart:convert';
+
+class Product {
+  final int id;
+  final String name;
+  final double price;
+  final List<String> tags;
+
+  const Product({required this.id, required this.name, required this.price, required this.tags});
+
+  factory Product.fromJson(Map<String, dynamic> j) => Product(
+    id: j['id'] as int,
+    name: j['name'] as String,
+    price: (j['price'] as num).toDouble(),
+    tags: List<String>.from(j['tags']),
+  );
+
+  Map<String, dynamic> toJson() =>
+      {'id': id, 'name': name, 'price': price, 'tags': tags};
+
+  @override
+  String toString() => 'Product(\$name, \\\$\$price)';
+}
+
+void main() {
+  const raw = '[{"id":1,"name":"Laptop","price":999.99,"tags":["tech","work"]},'
+      '{"id":2,"name":"Phone","price":499.0,"tags":["tech","mobile"]}]';
+
+  final products = (json.decode(raw) as List)
+      .map((e) => Product.fromJson(e as Map<String, dynamic>))
+      .toList();
+
+  for (final p in products) print(p);
+  print(json.encode(products.first.toJson()));
+}`,
+    expectedOutput: `Product(Laptop, \$999.99)\nProduct(Phone, \$499.0)\n{"id":1,"name":"Laptop","price":999.99,"tags":["tech","work"]}`,
+    quiz: [
+      { question: 'What does json.decode() return in Dart?', options: ['A String', 'A typed object', 'dynamic', 'A JsonObject'], correctAnswerIndex: 2 },
+      { question: 'What is the conventional Dart pattern for creating an object from a JSON map?', options: ['A static parse()', 'A factory constructor named fromJson', 'An operator overload', 'A named constructor fromMap'], correctAnswerIndex: 1 },
+      { question: 'Which library provides JSON encoding/decoding?', options: ['dart:io', 'dart:json', 'dart:convert', 'dart:core'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create class Article with title, author, publishedAt (DateTime), tags (List<String>). Implement fromJson and toJson. Decode a JSON array of 2 articles, print each, then re-encode the first.',
+      starterCode: `import 'dart:convert';
+
+class Article {
+  // fields, fromJson, toJson
+}
+
+void main() {
+  const raw = '[{"title":"Dart 3","author":"Alice","publishedAt":"2024-03-01","tags":["dart"]},'
+      '{"title":"Flutter Tips","author":"Bob","publishedAt":"2024-03-15","tags":["flutter"]}]';
+  // Decode, print, re-encode first
+}`,
+      solution: `import 'dart:convert';
+
+class Article {
+  final String title, author;
+  final DateTime publishedAt;
+  final List<String> tags;
+
+  Article({required this.title, required this.author, required this.publishedAt, required this.tags});
+
+  factory Article.fromJson(Map<String, dynamic> j) => Article(
+    title: j['title'],
+    author: j['author'],
+    publishedAt: DateTime.parse(j['publishedAt']),
+    tags: List<String>.from(j['tags']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'title': title, 'author': author,
+    'publishedAt': publishedAt.toIso8601String().substring(0, 10),
+    'tags': tags,
+  };
+
+  @override
+  String toString() => '"\$title" by \$author';
+}
+
+void main() {
+  const raw = '[{"title":"Dart 3","author":"Alice","publishedAt":"2024-03-01","tags":["dart"]},'
+      '{"title":"Flutter Tips","author":"Bob","publishedAt":"2024-03-15","tags":["flutter"]}]';
+  final articles = (json.decode(raw) as List).map((e) => Article.fromJson(e)).toList();
+  for (final a in articles) print(a);
+  print(json.encode(articles.first.toJson()));
+}`,
+    },
+  },
+
+  {
+    id: 49,
+    level: 'Intermediate',
+    title: 'Regular Expressions',
+    content: `# Regular Expressions in Dart
+
+\`RegExp\` lets you match, search, and replace patterns in strings.
+
+## Creating a RegExp
+
+Always use raw strings (\`r'...'\`) so backslashes are literal:
+\`\`\`dart
+final emailRe = RegExp(r'^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}\$', caseSensitive: false);
+\`\`\`
+
+## Key Methods
+
+\`\`\`dart
+re.hasMatch('alice@x.com');  // true/false
+re.firstMatch(text);         // RegExpMatch? 
+re.allMatches(text);         // Iterable<RegExpMatch>
+text.replaceAll(re, '');     // String
+\`\`\`
+
+## Capture Groups
+
+\`\`\`dart
+final dateRe = RegExp(r'(\\d{4})-(\\d{2})-(\\d{2})');
+final m = dateRe.firstMatch('2024-03-15')!;
+print(m.group(1)); // 2024
+print(m.group(2)); // 03
+\`\`\``,
+    tips: [
+      'Compile your RegExp once outside a loop — do not recreate it every iteration.',
+      'Use named groups (?<year>\\d{4}) for complex patterns.',
+      'group(0) is the entire match; group(1) is the first capture group.',
+    ],
+    codeSnippet: `void main() {
+  final emailRe = RegExp(r'^[\\w.+-]+@[\\w-]+\\.[a-z]{2,}\$', caseSensitive: false);
+  final phoneRe = RegExp(r'^\\+?\\d[\\d\\s\\-]{6,14}\\d\$');
+
+  final tests = ['alice@example.com', 'not-an-email', '+1 555-123-4567'];
+  for (final t in tests) {
+    final ok = emailRe.hasMatch(t) || phoneRe.hasMatch(t);
+    print('\${ok ? "✓" : "✗"} \$t');
+  }
+
+  final logRe = RegExp(r'(\\d{4}-\\d{2}-\\d{2}) (\\w+): (.+)');
+  const log = '2024-03-15 ERROR: Connection failed';
+  final m = logRe.firstMatch(log)!;
+  print('Date: \${m.group(1)}');
+  print('Level: \${m.group(2)}');
+  print('Msg: \${m.group(3)}');
+
+  final digits = RegExp(r'\\d+').allMatches('a1 b22 c333')
+      .map((m) => m.group(0)).toList();
+  print('Numbers: \$digits');
+}`,
+    expectedOutput: `✓ alice@example.com\n✗ not-an-email\n✓ +1 555-123-4567\nDate: 2024-03-15\nLevel: ERROR\nMsg: Connection failed\nNumbers: [1, 22, 333]`,
+    quiz: [
+      { question: 'Why use raw strings for RegExp?', options: ['They are faster', 'Backslashes are treated literally, not as Dart escape chars', 'They support Unicode', 'They allow multiline patterns'], correctAnswerIndex: 1 },
+      { question: 'What does allMatches() return?', options: ['List<String>', 'RegExpMatch?', 'Iterable<RegExpMatch>', 'bool'], correctAnswerIndex: 2 },
+      { question: 'What does group(0) return in a match?', options: ['The first capture group', 'The entire matched string', 'null', 'The start position'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write parseQueryString(String url) → Map<String,String> that extracts query parameters. "https://ex.com?name=Alice&age=30" → {name: Alice, age: 30}.',
+      starterCode: `Map<String, String> parseQueryString(String url) {
+  // Extract and return query params
+}
+
+void main() {
+  print(parseQueryString('https://example.com?name=Alice&age=30&city=Cairo'));
+}`,
+      solution: `Map<String, String> parseQueryString(String url) {
+  final qi = url.indexOf('?');
+  if (qi == -1) return {};
+  final query = url.substring(qi + 1);
+  final re = RegExp(r'([^&=]+)=([^&]*)');
+  return Map.fromEntries(
+    re.allMatches(query).map((m) => MapEntry(m.group(1)!, m.group(2)!)),
+  );
+}
+
+void main() {
+  print(parseQueryString('https://example.com?name=Alice&age=30&city=Cairo'));
+}`,
+    },
+  },
+
+  {
+    id: 50,
+    level: 'Intermediate',
+    title: 'Type System — is, as, and Type Promotion',
+    content: `# Dart's Type System
+
+## Type Tests
+
+\`\`\`dart
+Object value = 42;
+if (value is int) {
+  print(value.isEven); // promoted to int
+}
+if (value is! String) print('Not a string');
+\`\`\`
+
+## Type Cast (as)
+
+Forces a cast. Throws if wrong:
+\`\`\`dart
+final n = value as int;
+\`\`\`
+
+## Type Promotion
+
+After a successful \`is\` check, Dart narrows the type inside the block automatically — no manual cast needed.
+
+## Object, dynamic, Object?
+
+- \`Object\` — all non-null types
+- \`Object?\` — all types including null  
+- \`dynamic\` — opts out of static typing entirely
+- \`Never\` — the bottom type (a function that never returns)
+
+## Reified Generics
+
+Unlike Java, Dart preserves generic types at runtime:
+\`\`\`dart
+print(<int>[] is List<int>);    // true
+print(<int>[] is List<String>); // false
+\`\`\``,
+    tips: [
+      'Prefer is checks over try/as/catch — type promotion makes them cleaner.',
+      'Avoid dynamic unless absolutely necessary — it defeats type safety.',
+      'Type promotion only applies to local variables, not fields.',
+    ],
+    codeSnippet: `void process(Object? value) {
+  if (value == null) { print('null'); return; }
+  if (value is int)    print('int: \$value (even: \${value.isEven})');
+  else if (value is double) print('double: \${value.toStringAsFixed(2)}');
+  else if (value is String) print('String: "\$value" (length: \${value.length})');
+  else if (value is List)   print('List with \${value.length} items');
+  else if (value is Map)    print('Map with \${value.length} keys');
+  else print('Other: \${value.runtimeType}');
+}
+
+void main() {
+  for (final v in <Object?>[42, 3.14, 'Dart', null, [1,2,3], {'a':1}, true]) {
+    process(v);
+  }
+  print('\\nRuntime type checks:');
+  print(42 is num);       // true
+  print(3.14 is num);     // true
+  print([] is Iterable);  // true
+  print(<int>[] is List<String>); // false
+}`,
+    expectedOutput: `int: 42 (even: true)\ndouble: 3.14\nString: "Dart" (length: 4)\nnull\nList with 3 items\nMap with 1 keys\nOther: bool\n\nRuntime type checks:\ntrue\ntrue\ntrue\nfalse`,
+    quiz: [
+      { question: 'What is type promotion?', options: ['Converting int to double', 'The compiler narrows a variable type after a successful is check', 'Casting with as inside a catch block', 'Upgrading nullable to non-nullable with !'], correctAnswerIndex: 1 },
+      { question: 'What is the difference between Object and dynamic?', options: ['Object is nullable; dynamic is not', 'dynamic opts out of static type checking; Object does not', 'They are identical', 'Object is slower at runtime'], correctAnswerIndex: 1 },
+      { question: 'When does the as operator throw?', options: ['When the value is null', 'When the cast fails', 'When used on a generic type', 'Never'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write dynamic deepGet(Map<String,dynamic> map, List<String> keys) that traverses nested maps. deepGet({"a":{"b":{"c":42}}}, ["a","b","c"]) → 42. Return null if any key is missing.',
+      starterCode: `dynamic deepGet(Map<String, dynamic> map, List<String> keys) {
+  // Traverse nested map by key path
+}
+
+void main() {
+  final data = {'user': {'profile': {'name': 'Alice', 'age': 30}}};
+  print(deepGet(data, ['user', 'profile', 'name'])); // Alice
+  print(deepGet(data, ['user', 'profile', 'age']));  // 30
+  print(deepGet(data, ['user', 'missing', 'key']));  // null
+}`,
+      solution: `dynamic deepGet(Map<String, dynamic> map, List<String> keys) {
+  dynamic current = map;
+  for (final key in keys) {
+    if (current is Map<String, dynamic>) current = current[key];
+    else return null;
+  }
+  return current;
+}
+
+void main() {
+  final data = {'user': {'profile': {'name': 'Alice', 'age': 30}}};
+  print(deepGet(data, ['user', 'profile', 'name']));
+  print(deepGet(data, ['user', 'profile', 'age']));
+  print(deepGet(data, ['user', 'missing', 'key']));
+}`,
+    },
+  },
+
+  {
+    id: 51,
+    level: 'Intermediate',
+    title: 'Design Patterns — Singleton and Builder',
+    content: `# Singleton and Builder Patterns
+
+## Singleton
+
+Ensures only one instance of a class exists throughout the app:
+\`\`\`dart
+class Config {
+  static final Config _instance = Config._internal();
+  factory Config() => _instance;
+  Config._internal();
+
+  String appName = 'Dartly';
+  bool darkMode = false;
+}
+// Config() always returns the same object
+\`\`\`
+
+## Builder Pattern
+
+Great for objects with many optional fields — each method returns \`this\` for chaining:
+\`\`\`dart
+class QueryBuilder {
+  String _table = '';
+  final _conditions = <String>[];
+
+  QueryBuilder from(String t) { _table = t; return this; }
+  QueryBuilder where(String c) { _conditions.add(c); return this; }
+
+  String build() => 'SELECT * FROM \$_table'
+      + (_conditions.isEmpty ? '' : ' WHERE \${_conditions.join(' AND ')}');
+}
+\`\`\``,
+    tips: [
+      'Factory constructors are the idiomatic Dart way to implement Singleton.',
+      'The Builder pattern works beautifully with method chaining — each method returns this.',
+      'Use lazy static fields for Singletons with heavy initialisation.',
+    ],
+    codeSnippet: `class AppSettings {
+  static final AppSettings _instance = AppSettings._();
+  factory AppSettings() => _instance;
+  AppSettings._();
+
+  String locale = 'en';
+  bool notifications = true;
+  int fontSize = 16;
+
+  @override String toString() => 'Settings(locale=\$locale, fontSize=\$fontSize)';
+}
+
+class QueryBuilder {
+  String _table = '';
+  final _fields = <String>[];
+  final _conditions = <String>[];
+  String? _orderBy;
+  int? _limit;
+
+  QueryBuilder select(List<String> f) { _fields.addAll(f); return this; }
+  QueryBuilder from(String t) { _table = t; return this; }
+  QueryBuilder where(String c) { _conditions.add(c); return this; }
+  QueryBuilder orderBy(String col) { _orderBy = col; return this; }
+  QueryBuilder limit(int n) { _limit = n; return this; }
+
+  String build() {
+    final fields = _fields.isEmpty ? '*' : _fields.join(', ');
+    var q = 'SELECT \$fields FROM \$_table';
+    if (_conditions.isNotEmpty) q += ' WHERE \${_conditions.join(' AND ')}';
+    if (_orderBy != null) q += ' ORDER BY \$_orderBy';
+    if (_limit != null) q += ' LIMIT \$_limit';
+    return q;
+  }
+}
+
+void main() {
+  final s1 = AppSettings();
+  final s2 = AppSettings();
+  s1.locale = 'ar';
+  print('Same: \${identical(s1, s2)}');
+  print(s2);
+
+  final q = QueryBuilder()
+      .select(['name', 'email']).from('users')
+      .where('age > 18').orderBy('name').limit(10).build();
+  print(q);
+}`,
+    expectedOutput: `Same: true\nSettings(locale=ar, fontSize=16)\nSELECT name, email FROM users WHERE age > 18 ORDER BY name LIMIT 10`,
+    quiz: [
+      { question: 'What does a Singleton guarantee?', options: ['Only one method per class', 'Only one instance of the class exists', 'The class cannot be extended', 'No constructor'], correctAnswerIndex: 1 },
+      { question: 'How is Singleton typically implemented in Dart?', options: ['Static method getInstance()', 'Private constructor + factory returning a static instance', 'All methods static', 'Using sealed class'], correctAnswerIndex: 1 },
+      { question: 'What makes method chaining work in the Builder pattern?', options: ['Returning a new instance', 'Returning this from each builder method', 'Using static methods', 'Using extension methods'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Implement EventLogger as a Singleton with log(String event) storing events in a list and a List<String> get history getter. Verify two references are the same instance and share history.',
+      starterCode: `class EventLogger {
+  // Singleton implementation
+  void log(String event) {}
+  List<String> get history => [];
+}
+
+void main() {
+  final a = EventLogger();
+  final b = EventLogger();
+  a.log('App started');
+  b.log('User logged in');
+  print('Same: \${identical(a, b)}');
+  print('History: \${a.history}');
+}`,
+      solution: `class EventLogger {
+  static final EventLogger _i = EventLogger._();
+  factory EventLogger() => _i;
+  EventLogger._();
+
+  final _history = <String>[];
+
+  void log(String event) {
+    _history.add(event);
+    print('[LOG] \$event');
+  }
+
+  List<String> get history => List.unmodifiable(_history);
+}
+
+void main() {
+  final a = EventLogger();
+  final b = EventLogger();
+  a.log('App started');
+  b.log('User logged in');
+  print('Same: \${identical(a, b)}');
+  print('History: \${a.history}');
+}`,
+    },
+  },
+
+  {
+    id: 52,
+    level: 'Intermediate',
+    title: 'Design Patterns — Observer and Strategy',
+    content: `# Observer and Strategy Patterns
+
+## Observer (Publish-Subscribe)
+
+Objects subscribe to events from a subject and are notified automatically when state changes:
+\`\`\`dart
+class EventEmitter {
+  final _handlers = <String, List<Function(dynamic)>>{};
+  void on(String event, Function(dynamic) fn) =>
+      _handlers.putIfAbsent(event, () => []).add(fn);
+  void emit(String event, [dynamic data]) =>
+      _handlers[event]?.forEach((fn) => fn(data));
+}
+\`\`\`
+
+## Strategy
+
+Encapsulates interchangeable algorithms. Swap at runtime without changing client code.
+
+In Dart, first-class functions often replace formal Strategy objects — just pass a function:
+\`\`\`dart
+typedef PricingStrategy = double Function(double base, int qty);
+
+class Cart {
+  PricingStrategy strategy;
+  Cart({this.strategy = regularPrice});
+  double compute(double base, int qty) => strategy(base, qty);
+}
+\`\`\``,
+    tips: [
+      'In Dart, a function parameter often replaces a full Strategy interface — cleaner and more concise.',
+      'Observer underpins StreamController — consider Streams before rolling your own.',
+      'Flutter ChangeNotifier + addListener is an implementation of Observer.',
+    ],
+    codeSnippet: `typedef PricingFn = double Function(double base, int qty);
+
+double regularPrice(double b, int q) => b * q;
+double bulkPrice(double b, int q) => q >= 10 ? b * q * 0.85 : b * q;
+double premiumPrice(double b, int q) => b * q * 1.2;
+
+class Cart {
+  PricingFn strategy;
+  final _items = <(String, double, int)>[];
+
+  Cart({this.strategy = regularPrice});
+
+  void add(String name, double price, int qty) =>
+      _items.add((name, price, qty));
+
+  double get total =>
+      _items.fold(0, (s, i) => s + strategy(i.\$2, i.\$3));
+
+  void print_(String label) {
+    print('\$label — total: \\\$\${total.toStringAsFixed(2)}');
+  }
+}
+
+void main() {
+  final cart = Cart();
+  cart.add('Widget', 10.0, 5);
+  cart.add('Gadget', 25.0, 2);
+  cart.print_('Regular');
+
+  cart.strategy = bulkPrice;
+  cart.add('Gizmo', 5.0, 15);
+  cart.print_('Bulk');
+
+  cart.strategy = premiumPrice;
+  cart.print_('Premium');
+}`,
+    expectedOutput: `Regular — total: \$100.00\nBulk — total: \$163.75\nPremium — total: \$210.00`,
+    quiz: [
+      { question: 'What problem does Observer solve?', options: ['Encapsulating algorithms', 'Notifying multiple objects when one changes state', 'Ensuring one instance', 'Separating construction from representation'], correctAnswerIndex: 1 },
+      { question: 'In the Strategy pattern, what changes at runtime?', options: ['The class of the object', 'The algorithm used', 'The number of instances', 'The memory layout'], correctAnswerIndex: 1 },
+      { question: 'How can Dart first-class functions replace Strategy?', options: ['Using static methods', 'Passing a function as a parameter instead of a strategy object', 'Using mixins', 'Using generics'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Build EventEmitter with on(event, handler) and emit(event, data). Test "login" and "logout" events with multiple listeners.',
+      starterCode: `class EventEmitter {
+  // Store handlers per event name
+  void on(String event, Function(dynamic) handler) {}
+  void emit(String event, [dynamic data]) {}
+}
+
+void main() {
+  final em = EventEmitter();
+  em.on('login', (d) => print('Logger: \$d logged in'));
+  em.on('login', (d) => print('Analytics: login for \$d'));
+  em.on('logout', (d) => print('Session cleared: \$d'));
+  em.emit('login', 'Alice');
+  em.emit('logout', 'Alice');
+}`,
+      solution: `class EventEmitter {
+  final _h = <String, List<Function(dynamic)>>{};
+  void on(String e, Function(dynamic) fn) =>
+      _h.putIfAbsent(e, () => []).add(fn);
+  void emit(String e, [dynamic data]) => _h[e]?.forEach((fn) => fn(data));
+}
+
+void main() {
+  final em = EventEmitter();
+  em.on('login', (d) => print('Logger: \$d logged in'));
+  em.on('login', (d) => print('Analytics: login for \$d'));
+  em.on('logout', (d) => print('Session cleared: \$d'));
+  em.emit('login', 'Alice');
+  em.emit('logout', 'Alice');
+}`,
+    },
+  },
+
+  {
+    id: 53,
+    level: 'Intermediate',
+    title: 'Unit Testing in Dart',
+    content: `# Unit Testing with package:test
+
+Testing ensures your code works correctly and keeps working as you change it.
+
+## Setup
+
+\`\`\`yaml
+dev_dependencies:
+  test: ^1.24.0
+\`\`\`
+
+Run: \`dart test\`
+
+## Writing Tests
+
+\`\`\`dart
+import 'package:test/test.dart';
+
+void main() {
+  test('addition works', () {
+    expect(2 + 2, equals(4));
+  });
+
+  group('Calculator', () {
+    test('divides', () => expect(divide(10, 2), 5.0));
+    test('throws on zero', () => expect(
+      () => divide(1, 0), throwsA(isA<ArgumentError>())));
+  });
+}
+\`\`\`
+
+## Common Matchers
+
+\`equals(v)\`, \`isNull\`, \`isTrue\`, \`throwsA(isA<E>())\`, \`contains(item)\`, \`hasLength(n)\`, \`closeTo(v, delta)\`
+
+## Async Tests
+
+\`\`\`dart
+test('async fetch', () async {
+  final result = await fetchData();
+  expect(result, isNotNull);
+});
+\`\`\``,
+    tips: [
+      'Follow Arrange-Act-Assert: set up data, run the code, then verify.',
+      'Use setUp() / tearDown() for shared setup across tests in a group.',
+      'Test edge cases: empty inputs, null values, boundaries — not just happy paths.',
+    ],
+    codeSnippet: `// Simulating test runner (real projects use dart test)
+class Calculator {
+  double add(double a, double b) => a + b;
+  double divide(double a, double b) {
+    if (b == 0) throw ArgumentError('Division by zero');
+    return a / b;
+  }
+  int factorial(int n) {
+    if (n < 0) throw ArgumentError('n must be >= 0');
+    return n == 0 ? 1 : n * factorial(n - 1);
+  }
+}
+
+void runTests() {
+  final calc = Calculator();
+  int passed = 0, failed = 0;
+
+  void test_(String name, void Function() fn) {
+    try { fn(); print('  ✓ \$name'); passed++; }
+    catch (e) { print('  ✗ \$name: \$e'); failed++; }
+  }
+  void expect_(dynamic actual, dynamic expected) {
+    if (actual != expected) throw AssertionError('\$actual != \$expected');
+  }
+
+  print('Calculator tests:');
+  test_('add 2+3=5', () => expect_(calc.add(2, 3), 5));
+  test_('divide 10/2=5', () => expect_(calc.divide(10, 2), 5));
+  test_('factorial(5)=120', () => expect_(calc.factorial(5), 120));
+  test_('factorial(0)=1', () => expect_(calc.factorial(0), 1));
+  test_('divide by zero throws', () {
+    try { calc.divide(5, 0); throw AssertionError('Should throw'); }
+    catch (e) { if (e is! ArgumentError) rethrow; }
+  });
+
+  print('\\n\$passed passed, \$failed failed');
+}
+
+void main() => runTests();`,
+    expectedOutput: `Calculator tests:\n  ✓ add 2+3=5\n  ✓ divide 10/2=5\n  ✓ factorial(5)=120\n  ✓ factorial(0)=1\n  ✓ divide by zero throws\n\n5 passed, 0 failed`,
+    quiz: [
+      { question: 'What is Arrange-Act-Assert?', options: ['Import, run, export', 'Set up data, execute the code, verify the result', 'Compile, link, run', 'Mock, inject, verify'], correctAnswerIndex: 1 },
+      { question: 'Which package is commonly used for Dart unit testing?', options: ['package:unittest', 'package:assert', 'package:test', 'package:check'], correctAnswerIndex: 2 },
+      { question: 'What matcher verifies a function throws a specific exception?', options: ['throws()', 'throwsA(isA<E>())', 'expectException()', 'willThrow()'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write StringUtils with isPalindrome, countVowels, and titleCase. Simulate 6 unit tests including edge cases.',
+      starterCode: `class StringUtils {
+  bool isPalindrome(String s) => s == s.split('').reversed.join();
+  int countVowels(String s) => s.toLowerCase().split('').where((c) => 'aeiou'.contains(c)).length;
+  String titleCase(String s) => s.split(' ').map((w) =>
+      w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1).toLowerCase()).join(' ');
+}
+
+void main() {
+  // Simulate 6 tests
+}`,
+      solution: `class StringUtils {
+  bool isPalindrome(String s) => s == s.split('').reversed.join();
+  int countVowels(String s) => s.toLowerCase().split('').where((c) => 'aeiou'.contains(c)).length;
+  String titleCase(String s) => s.split(' ').map((w) =>
+      w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1).toLowerCase()).join(' ');
+}
+
+void main() {
+  final u = StringUtils();
+  int p = 0;
+  void check(String name, bool ok) { print('\${ok?"✓":"✗"} \$name'); if (ok) p++; }
+
+  check('racecar is palindrome', u.isPalindrome('racecar'));
+  check('hello not palindrome', !u.isPalindrome('hello'));
+  check('empty is palindrome', u.isPalindrome(''));
+  check('countVowels(hello)=2', u.countVowels('hello') == 2);
+  check('countVowels(rhythm)=0', u.countVowels('rhythm') == 0);
+  check('titleCase works', u.titleCase('the quick brown fox') == 'The Quick Brown Fox');
+  print('\$p/6 passed');
+}`,
+    },
+  },
+
+  {
+    id: 54,
+    level: 'Intermediate',
+    title: 'Typedefs and Function Types',
+    content: `# Typedefs in Dart
+
+A \`typedef\` creates a named alias for a type — most commonly function types. This improves readability and reuse.
+
+## Defining Typedefs
+
+\`\`\`dart
+typedef Predicate<T> = bool Function(T value);
+typedef Transform<A, B> = B Function(A input);
+typedef Callback = void Function(String msg);
+typedef JsonMap = Map<String, dynamic>;
+\`\`\`
+
+## Using Typedefs
+
+\`\`\`dart
+Predicate<int> isEven = (n) => n % 2 == 0;
+
+List<T> filter<T>(List<T> items, Predicate<T> test) =>
+    items.where(test).toList();
+
+filter([1,2,3,4,5], isEven); // [2, 4]
+\`\`\`
+
+## Since Dart 2.13
+
+Typedefs can alias any type — not just functions:
+\`\`\`dart
+typedef Point = (int, int);
+typedef StringList = List<String>;
+\`\`\``,
+    tips: [
+      'Typedefs for function types document your intent — Validator<T> is clearer than String? Function(T).',
+      'Use typedef JsonMap = Map<String,dynamic> to avoid repeating the full generic.',
+      'Since Dart 2.13, typedefs can alias any type, not just functions.',
+    ],
+    codeSnippet: `typedef Predicate<T> = bool Function(T);
+typedef Mapper<A, B> = B Function(A);
+typedef Reducer<T, R> = R Function(R acc, T item);
+typedef Validator = String? Function(String? value);
+
+List<B> mapFilter<A, B>(List<A> items, B? Function(A) fn) =>
+    items.map(fn).whereType<B>().toList();
+
+R fold<T, R>(List<T> items, R seed, Reducer<T, R> fn) =>
+    items.fold(seed, fn);
+
+Validator required_ = (v) =>
+    (v == null || v.isEmpty) ? 'Required' : null;
+Validator minLength(int n) =>
+    (v) => (v != null && v.length >= n) ? null : 'Min \$n chars';
+
+String? validate(String? v, List<Validator> rules) {
+  for (final r in rules) { final e = r(v); if (e != null) return e; }
+  return null;
+}
+
+void main() {
+  final numbers = List.generate(10, (i) => i + 1);
+
+  final oddDoubled = mapFilter<int, int>(numbers, (n) => n.isOdd ? n * 2 : null);
+  print('Odd doubled: \$oddDoubled');
+
+  print('Sum: \${fold(numbers, 0, (acc, n) => acc + n)}');
+
+  final rules = [required_, minLength(8)];
+  print(validate(null, rules));
+  print(validate('short', rules));
+  print(validate('securepass', rules));
+}`,
+    expectedOutput: `Odd doubled: [2, 6, 10, 14, 18]\nSum: 55\nRequired\nMin 8 chars\nnull`,
+    quiz: [
+      { question: 'What is the primary purpose of typedef?', options: ['Copy a class', 'Create a named alias for a type', 'Override method signatures', 'Define abstract types'], correctAnswerIndex: 1 },
+      { question: 'Since Dart 2.13, what types can typedef alias?', options: ['Only function types', 'Only primitives', 'Any type', 'Only generic types'], correctAnswerIndex: 2 },
+      { question: 'What is the benefit of typedef Predicate<T> = bool Function(T)?', options: ['Faster execution', 'Named, reusable type for a common function signature', 'Makes function private', 'Adds null safety'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Define typedef Comparator<T> = int Function(T, T). Implement List<T> mergeSort<T>(List<T> list, Comparator<T> compare). Sort strings by length.',
+      starterCode: `typedef Comparator<T> = int Function(T a, T b);
+
+List<T> mergeSort<T>(List<T> list, Comparator<T> cmp) {
+  if (list.length <= 1) return list;
+  final mid = list.length ~/ 2;
+  final left = mergeSort(list.sublist(0, mid), cmp);
+  final right = mergeSort(list.sublist(mid), cmp);
+  return merge(left, right, cmp);
+}
+
+List<T> merge<T>(List<T> l, List<T> r, Comparator<T> cmp) {
+  // Merge two sorted lists
+}
+
+void main() {
+  final words = ['banana', 'fig', 'apple', 'kiwi', 'strawberry'];
+  print(mergeSort(words, (a, b) => a.length.compareTo(b.length)));
+}`,
+      solution: `typedef Comparator<T> = int Function(T a, T b);
+
+List<T> mergeSort<T>(List<T> list, Comparator<T> cmp) {
+  if (list.length <= 1) return list;
+  final mid = list.length ~/ 2;
+  return merge(mergeSort(list.sublist(0, mid), cmp),
+               mergeSort(list.sublist(mid), cmp), cmp);
+}
+
+List<T> merge<T>(List<T> l, List<T> r, Comparator<T> cmp) {
+  final result = <T>[];
+  int i = 0, j = 0;
+  while (i < l.length && j < r.length) {
+    result.add(cmp(l[i], r[j]) <= 0 ? l[i++] : r[j++]);
+  }
+  return result..addAll(l.sublist(i))..addAll(r.sublist(j));
+}
+
+void main() {
+  final words = ['banana', 'fig', 'apple', 'kiwi', 'strawberry'];
+  print(mergeSort(words, (a, b) => a.length.compareTo(b.length)));
+}`,
+    },
+  },
+
+  {
+    id: 55,
+    level: 'Intermediate',
+    title: 'Operator Overloading',
+    content: `# Operator Overloading
+
+Use the \`operator\` keyword to define custom behaviour for +, -, *, ==, [], etc.
+
+## Example
+
+\`\`\`dart
+class Vector {
+  final double x, y;
+  const Vector(this.x, this.y);
+
+  Vector operator +(Vector o) => Vector(x + o.x, y + o.y);
+  Vector operator *(double s) => Vector(x * s, y * s);
+
+  @override bool operator ==(Object o) =>
+      o is Vector && x == o.x && y == o.y;
+  @override int get hashCode => Object.hash(x, y);
+}
+\`\`\`
+
+## Comparable for Sorting
+
+Implement \`Comparable<T>\` to make objects sortable:
+\`\`\`dart
+class Temperature implements Comparable<Temperature> {
+  @override int compareTo(Temperature o) => celsius.compareTo(o.celsius);
+}
+\`\`\`
+
+## Overloadable Operators
+
+\`<\`, \`>\`, \`+\`, \`-\`, \`*\`, \`/\`, \`~/\`, \`%\`, \`[]\`, \`[]=\`, \`==\` and more.`,
+    tips: [
+      'Always override hashCode when you override == — equal objects must have equal hashes.',
+      'Implement Comparable<T> to work with sort() and sorted collections.',
+      'Overload operators sparingly — only when the operation is naturally mathematical.',
+    ],
+    codeSnippet: `class Fraction implements Comparable<Fraction> {
+  final int num;
+  final int den;
+
+  Fraction(int n, int d) : num = n * d.sign, den = d.abs() {
+    if (d == 0) throw ArgumentError('Denominator cannot be zero');
+  }
+
+  static int _gcd(int a, int b) => b == 0 ? a : _gcd(b, a % b);
+
+  Fraction get simplified {
+    final g = _gcd(num.abs(), den);
+    return Fraction(num ~/ g, den ~/ g);
+  }
+
+  Fraction operator +(Fraction o) =>
+      Fraction(num * o.den + o.num * den, den * o.den).simplified;
+  Fraction operator *(Fraction o) =>
+      Fraction(num * o.num, den * o.den).simplified;
+
+  @override bool operator ==(Object o) =>
+      o is Fraction && simplified.num == o.simplified.num
+          && simplified.den == o.simplified.den;
+  @override int get hashCode => Object.hash(simplified.num, simplified.den);
+  @override int compareTo(Fraction o) => (num * o.den).compareTo(o.num * den);
+  @override String toString() => den == 1 ? '\$num' : '\$num/\$den';
+}
+
+void main() {
+  final half = Fraction(1, 2);
+  final third = Fraction(1, 3);
+  print('\$half + \$third = \${half + third}');
+  print('\$half * \$third = \${half * third}');
+  print('1/2 == 2/4: \${Fraction(1,2) == Fraction(2,4)}');
+
+  final fractions = [Fraction(3,4), Fraction(1,2), Fraction(2,3), Fraction(1,4)];
+  fractions.sort();
+  print('Sorted: \$fractions');
+}`,
+    expectedOutput: `1/2 + 1/3 = 5/6\n1/2 * 1/3 = 1/6\n1/2 == 2/4: true\nSorted: [1/4, 1/2, 2/3, 3/4]`,
+    quiz: [
+      { question: 'What keyword defines a custom operator in Dart?', options: ['overload', 'op', 'operator', 'define'], correctAnswerIndex: 2 },
+      { question: 'If you override == you must also override:', options: ['toString()', 'compareTo()', 'hashCode', 'runtimeType'], correctAnswerIndex: 2 },
+      { question: 'Which interface makes a class sortable with list.sort()?', options: ['Sortable', 'Ordered', 'Equatable', 'Comparable<T>'], correctAnswerIndex: 3 },
+    ],
+    exercise: {
+      instruction: 'Create Matrix2x2 (fields a,b,c,d). Overload + (addition), * (matrix product), and == (equality). Add double get determinant. Test all.',
+      starterCode: `class Matrix2x2 {
+  final double a, b, c, d;
+  const Matrix2x2(this.a, this.b, this.c, this.d);
+
+  // + operator, * operator, == operator, determinant getter
+}
+
+void main() {
+  final m1 = Matrix2x2(1, 2, 3, 4);
+  final m2 = Matrix2x2(5, 6, 7, 8);
+  print(m1 + m2);
+  print(m1 * m2);
+  print('Det: \${m1.determinant}');
+}`,
+      solution: `class Matrix2x2 {
+  final double a, b, c, d;
+  const Matrix2x2(this.a, this.b, this.c, this.d);
+
+  Matrix2x2 operator +(Matrix2x2 o) => Matrix2x2(a+o.a, b+o.b, c+o.c, d+o.d);
+  Matrix2x2 operator *(Matrix2x2 o) => Matrix2x2(
+    a*o.a + b*o.c, a*o.b + b*o.d,
+    c*o.a + d*o.c, c*o.b + d*o.d,
+  );
+  @override bool operator ==(Object o) =>
+      o is Matrix2x2 && a==o.a && b==o.b && c==o.c && d==o.d;
+  @override int get hashCode => Object.hash(a,b,c,d);
+  double get determinant => a * d - b * c;
+  @override String toString() => '[[\\$a,\\$b],[\\$c,\\$d]]';
+}
+
+void main() {
+  final m1 = Matrix2x2(1, 2, 3, 4);
+  final m2 = Matrix2x2(5, 6, 7, 8);
+  print(m1 + m2);
+  print(m1 * m2);
+  print('Det: \${m1.determinant}');
+}`,
+    },
+  },
+
+  {
+    id: 56,
+    level: 'Intermediate',
+    title: 'Packages and pub.dev',
+    content: `# Dart Packages and pub.dev
+
+Thousands of open-source packages live at [pub.dev](https://pub.dev). Packages save you from reinventing the wheel.
+
+## pubspec.yaml
+
+\`\`\`yaml
+name: my_app
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  http: ^1.2.0
+  intl: ^0.19.0
+dev_dependencies:
+  test: ^1.24.0
+\`\`\`
+
+## Commands
+
+\`\`\`bash
+dart pub add http         # add a dependency
+dart pub add --dev test   # add dev dependency
+dart pub get              # install all
+dart pub upgrade          # upgrade all
+dart pub outdated         # see newer versions
+\`\`\`
+
+## Version Constraints
+
+- \`^1.2.0\` — compatible with 1.2.0 up to (not including) 2.0.0
+- \`>=1.0.0 <2.0.0\` — explicit range
+
+## Popular Packages
+
+| Package   | Purpose                    |
+|-----------|----------------------------|
+| http      | HTTP requests              |
+| intl      | Internationalisation       |
+| path      | Path manipulation          |
+| equatable | Value equality             |
+| freezed   | Immutable data classes     |`,
+    tips: [
+      'Always use ^ constraints — allows patch upgrades but prevents breaking changes.',
+      'Check pub points, likes, and popularity on pub.dev before adding a package.',
+      'Run dart pub outdated regularly to keep dependencies fresh.',
+    ],
+    codeSnippet: `// Demonstrating manual number/date formatting (simulating intl package)
+
+String formatCurrency(double amount, String symbol) {
+  final formatted = amount.toStringAsFixed(2);
+  final parts = formatted.split('.');
+  final withCommas = parts[0].replaceAllMapped(
+    RegExp(r'(\\d)(?=(\\d{3})+\$)'), (m) => '\${m[1]},');
+  return '\$symbol\$withCommas.\${parts[1]}';
+}
+
+String formatDate(DateTime d) {
+  final months = ['Jan','Feb','Mar','Apr','May','Jun',
+                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+  return '\${months[d.month-1]} \${d.day}, \${d.year}';
+}
+
+void main() {
+  print(formatCurrency(1234567.89, '\\\$'));
+  print(formatCurrency(9999.50, '€'));
+  print(formatDate(DateTime(2024, 3, 15)));
+  print(formatDate(DateTime(2024, 12, 1)));
+
+  print('\\n--- Key packages ---');
+  print('intl: ^0.19.0   → Locale-aware formatting');
+  print('http: ^1.2.0    → HTTP client');
+  print('path: ^1.9.0    → Path utilities');
+}`,
+    expectedOutput: `\$1,234,567.89\n€9,999.50\nMar 15, 2024\nDec 1, 2024\n\n--- Key packages ---\nintl: ^0.19.0   → Locale-aware formatting\nhttp: ^1.2.0    → HTTP client\npath: ^1.9.0    → Path utilities`,
+    quiz: [
+      { question: 'What does ^1.2.0 mean as a version constraint?', options: ['Exactly 1.2.0', 'Any version > 1.2.0', 'Compatible with 1.2.0, less than 2.0.0', 'Latest available'], correctAnswerIndex: 2 },
+      { question: 'Which command installs all pubspec.yaml packages?', options: ['dart pub install', 'dart pub get', 'dart pub fetch', 'dart pub sync'], correctAnswerIndex: 1 },
+      { question: 'Where is the central Dart/Flutter package repository?', options: ['npmjs.com', 'crates.io', 'pub.dev', 'maven.org'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Create a package registry Map with 4 packages (http, intl, path, test). Write addDependency(name) that checks existence and installs to a Set. Print pubspec.yaml-style output for installed packages.',
+      starterCode: `void main() {
+  final registry = <String, String>{
+    // name → version constraint
+  };
+  final installed = <String>{};
+
+  void addDependency(String name) {
+    // Check and install
+  }
+
+  addDependency('http');
+  addDependency('intl');
+  addDependency('nonexistent');
+
+  print('dependencies:');
+  // Print installed packages
+}`,
+      solution: `void main() {
+  final registry = <String, String>{
+    'http': '^1.2.0', 'intl': '^0.19.0',
+    'path': '^1.9.0', 'test': '^1.24.0',
+  };
+  final installed = <String>{};
+
+  void addDependency(String name) {
+    if (!registry.containsKey(name)) {
+      print('Error: "\$name" not found'); return;
+    }
+    installed.add(name);
+    print('+ \$name \${registry[name]}');
+  }
+
+  addDependency('http');
+  addDependency('intl');
+  addDependency('nonexistent');
+
+  print('\\ndependencies:');
+  for (final p in installed) print('  \$p: \${registry[p]}');
+}`,
+    },
+  },
+
+  {
+    id: 57,
+    level: 'Intermediate',
+    title: 'HTTP Requests with the http Package',
+    content: `# HTTP Requests
+
+The \`http\` package is the standard Dart library for REST API calls.
+
+## GET Request
+
+\`\`\`dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+final url = Uri.parse('https://api.example.com/users/1');
+final response = await http.get(url);
+
+if (response.statusCode == 200) {
+  final data = json.decode(response.body);
+  print(data['name']);
+} else {
+  throw Exception('HTTP \${response.statusCode}');
+}
+\`\`\`
+
+## POST Request
+
+\`\`\`dart
+await http.post(
+  Uri.parse('https://api.example.com/users'),
+  headers: {'Content-Type': 'application/json'},
+  body: json.encode({'name': 'Alice'}),
+);
+\`\`\`
+
+## Response Properties
+
+- \`response.statusCode\` — 200, 404, 500…
+- \`response.body\` — body as String
+- \`response.headers\` — Map of headers
+
+## Reusing Connections
+
+\`\`\`dart
+final client = http.Client();
+try { /* multiple calls */ } finally { client.close(); }
+\`\`\``,
+    tips: [
+      'Always check statusCode before decoding — a 404 body is an error message, not your data.',
+      'Use http.Client() for multiple requests to the same server — it reuses the connection.',
+      'Wrap calls in try/catch — network errors throw SocketException or ClientException.',
+    ],
+    codeSnippet: `import 'dart:convert';
+
+// Mock HTTP layer for the lesson
+class MockRes { final int statusCode; final String body; MockRes(this.statusCode, this.body); }
+
+Future<MockRes> mockGet(String path) async {
+  await Future.delayed(Duration(milliseconds: 30));
+  final db = {
+    '/users/1': '{"id":1,"name":"Alice","role":"admin"}',
+    '/users/2': '{"id":2,"name":"Bob","role":"user"}',
+    '/posts': '[{"id":1,"title":"Hello Dart"},{"id":2,"title":"Async is Fun"}]',
+  };
+  return db.containsKey(path) ? MockRes(200, db[path]!) : MockRes(404, '{"error":"Not found"}');
+}
+
+Future<Map<String, dynamic>> fetchUser(int id) async {
+  final r = await mockGet('/users/\$id');
+  if (r.statusCode != 200) throw Exception('HTTP \${r.statusCode}');
+  return json.decode(r.body) as Map<String, dynamic>;
+}
+
+void main() async {
+  try {
+    final user = await fetchUser(1);
+    print('User: \${user['name']} (\${user['role']})');
+
+    final posts = (json.decode((await mockGet('/posts')).body) as List)
+        .cast<Map<String, dynamic>>();
+    for (final p in posts) print('  [\${p['id']}] \${p['title']}');
+
+    await fetchUser(99);
+  } catch (e) { print('Error: \$e'); }
+}`,
+    expectedOutput: `User: Alice (admin)\n  [1] Hello Dart\n  [2] Async is Fun\nError: Exception: HTTP 404`,
+    quiz: [
+      { question: 'What does statusCode == 200 mean?', options: ['Request failed', 'Timed out', 'Request succeeded', 'Server is redirecting'], correctAnswerIndex: 2 },
+      { question: 'Why use http.Client() over top-level http.get()?', options: ['Client() is faster for one request', 'Client() reuses the connection', 'Client() handles cookies automatically', 'Only Client() supports POST'], correctAnswerIndex: 1 },
+      { question: 'What exception does the http package throw when the network is unavailable?', options: ['NetworkException', 'TimeoutException', 'SocketException or ClientException', 'HttpException'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Using mockGet from the lesson, write fetchUserPosts(int userId) that fetches user and posts concurrently with Future.wait, then prints "<name>\'s posts: [titles]".',
+      starterCode: `import 'dart:convert';
+
+// (Include MockRes and mockGet from lesson above)
+
+Future<void> fetchUserPosts(int userId) async {
+  // Fetch user and posts concurrently, then print
+}
+
+void main() async {
+  await fetchUserPosts(1);
+}`,
+      solution: `import 'dart:convert';
+
+class MockRes { final int s; final String b; MockRes(this.s, this.b); }
+
+Future<MockRes> mockGet(String p) async {
+  await Future.delayed(Duration(milliseconds: 30));
+  final db = {
+    '/users/1': '{"id":1,"name":"Alice"}',
+    '/posts': '[{"id":1,"title":"Hello Dart","userId":1},{"id":2,"title":"Async Fun","userId":2}]',
+  };
+  return db.containsKey(p) ? MockRes(200, db[p]!) : MockRes(404, '{}');
+}
+
+Future<void> fetchUserPosts(int userId) async {
+  final [uRes, pRes] = await Future.wait([mockGet('/users/\$userId'), mockGet('/posts')]);
+  final user = json.decode(uRes.b) as Map<String, dynamic>;
+  final posts = (json.decode(pRes.b) as List)
+      .cast<Map<String, dynamic>>()
+      .where((p) => p['userId'] == userId)
+      .map((p) => p['title']).toList();
+  print("\${user['name']}'s posts: \$posts");
+}
+
+void main() async { await fetchUserPosts(1); }`,
+    },
+  },
+
+  {
+    id: 58,
+    level: 'Intermediate',
+    title: 'Dependency Injection',
+    content: `# Dependency Injection
+
+Dependency Injection (DI) means a class receives its dependencies from outside rather than creating them itself — making code testable and flexible.
+
+## Without DI (bad)
+
+\`\`\`dart
+class UserService {
+  final db = DatabaseConnection(); // hard-coded
+}
+\`\`\`
+You cannot swap DatabaseConnection for a mock in tests.
+
+## Constructor Injection (good)
+
+\`\`\`dart
+class UserService {
+  final DatabaseRepository _db;
+  UserService(this._db); // injected
+}
+\`\`\`
+
+## Depend on Abstractions
+
+\`\`\`dart
+abstract class UserRepository {
+  Future<String?> findUser(int id);
+}
+
+class InMemoryRepo implements UserRepository { ... }
+class SqlRepo    implements UserRepository { ... }
+\`\`\`
+
+Now you can swap implementations at will — and use InMemoryRepo in tests.`,
+    tips: [
+      'In Flutter, get_it (service locator) and riverpod implement DI at scale.',
+      'Always depend on abstractions (interfaces), not concrete classes.',
+      'Constructor injection is the most explicit and testable form of DI.',
+    ],
+    codeSnippet: `abstract class Logger {
+  void log(String msg);
+}
+abstract class UserRepo {
+  Future<String?> find(int id);
+  Future<void> save(int id, String name);
+}
+
+class ConsoleLogger implements Logger {
+  @override void log(String msg) => print('[LOG] \$msg');
+}
+
+class InMemoryUserRepo implements UserRepo {
+  final _store = <int, String>{};
+  final Logger _logger;
+  InMemoryUserRepo(this._logger);
+  @override Future<String?> find(int id) async {
+    _logger.log('Finding \$id'); return _store[id];
+  }
+  @override Future<void> save(int id, String name) async {
+    _store[id] = name; _logger.log('Saved \$id: \$name');
+  }
+}
+
+class UserService {
+  final UserRepo _repo;
+  final Logger _logger;
+  UserService(this._repo, this._logger);
+
+  Future<void> register(int id, String name) async {
+    if (await _repo.find(id) != null) { _logger.log('\$id exists'); return; }
+    await _repo.save(id, name);
+  }
+
+  Future<void> greet(int id) async {
+    final name = await _repo.find(id);
+    print(name != null ? 'Hello, \$name!' : 'Not found');
+  }
+}
+
+void main() async {
+  final logger = ConsoleLogger();
+  final repo = InMemoryUserRepo(logger);
+  final svc = UserService(repo, logger);
+
+  await svc.register(1, 'Alice');
+  await svc.register(1, 'Alice');
+  await svc.greet(1);
+  await svc.greet(99);
+}`,
+    expectedOutput: `[LOG] Finding 1\n[LOG] Saved 1: Alice\n[LOG] Finding 1\n[LOG] 1 exists\n[LOG] Finding 1\nHello, Alice!\n[LOG] Finding 99\nNot found`,
+    quiz: [
+      { question: 'What is Dependency Injection?', options: ['Adding packages to pubspec', 'Passing a class its dependencies from outside', 'Injecting code at runtime via reflection', 'Loading plugins dynamically'], correctAnswerIndex: 1 },
+      { question: 'Why is constructor injection preferred for testability?', options: ['It is faster', 'Dependencies are explicit and replaceable with mocks', 'It avoids interfaces', 'It avoids abstract classes'], correctAnswerIndex: 1 },
+      { question: 'What should you depend on — abstractions or concrete classes?', options: ['Concrete classes (faster)', 'Abstractions (interfaces)', 'Either, no difference', 'Only use dynamic'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Create abstract EmailService with send(to, subject, body). Implement MockEmailService that stores emails in a list. Create NotificationService injected with EmailService that sends a welcome email. Test with Mock.',
+      starterCode: `abstract class EmailService {
+  void send(String to, String subject, String body);
+}
+
+class MockEmailService implements EmailService {
+  final sent = <String>[];
+  @override void send(String to, String subject, String body) {
+    // Store as string
+  }
+}
+
+class NotificationService {
+  final EmailService _email;
+  NotificationService(this._email);
+  void sendWelcome(String email, String name) {}
+}
+
+void main() {
+  final mock = MockEmailService();
+  final svc = NotificationService(mock);
+  svc.sendWelcome('alice@example.com', 'Alice');
+  print('Sent: \${mock.sent.length}');
+  print(mock.sent.first);
+}`,
+      solution: `abstract class EmailService {
+  void send(String to, String subject, String body);
+}
+
+class MockEmailService implements EmailService {
+  final sent = <String>[];
+  @override void send(String to, String subject, String body) =>
+      sent.add('To:\$to | \$subject');
+}
+
+class NotificationService {
+  final EmailService _email;
+  NotificationService(this._email);
+  void sendWelcome(String email, String name) =>
+      _email.send(email, 'Welcome to Dartly!', 'Hi \$name, welcome!');
+}
+
+void main() {
+  final mock = MockEmailService();
+  final svc = NotificationService(mock);
+  svc.sendWelcome('alice@example.com', 'Alice');
+  print('Sent: \${mock.sent.length}');
+  print(mock.sent.first);
+}`,
+    },
+  },
+
+  {
+    id: 59,
+    level: 'Intermediate',
+    title: 'Dart CLI Apps',
+    content: `# Building CLI Apps in Dart
+
+Dart is excellent for CLI tools — fast startup with AOT compilation and a rich standard library.
+
+## Command-Line Arguments
+
+\`\`\`dart
+void main(List<String> args) {
+  if (args.isEmpty) { print('Usage: tool <name>'); return; }
+  print('Hello, \${args[0]}!');
+}
+\`\`\`
+
+## stdin and stdout
+
+\`\`\`dart
+import 'dart:io';
+stdout.write('Enter name: ');
+final name = stdin.readLineSync();
+print('Hello, \$name!');
+\`\`\`
+
+## Platform Info
+
+\`\`\`dart
+print(Platform.operatingSystem);
+print(Platform.environment['HOME']);
+\`\`\`
+
+## Compiling to Native
+
+\`\`\`bash
+dart compile exe bin/tool.dart -o bin/tool
+./bin/tool  # runs without Dart installed
+\`\`\`
+
+## The args Package
+
+The \`args\` package simplifies flag/option parsing:
+\`\`\`dart
+final parser = ArgParser()
+  ..addOption('name', abbr: 'n')
+  ..addFlag('verbose', abbr: 'v');
+final results = parser.parse(args);
+\`\`\``,
+    tips: [
+      'dart compile exe produces a single native binary — great for distributing tools.',
+      'The args package is the standard way to handle complex CLI argument parsing.',
+      'Always validate args and print usage on bad input — good CLI tools guide the user.',
+    ],
+    codeSnippet: `import 'dart:io';
+
+Map<String, int> analyzeText(String text) => {
+  'words': text.split(RegExp(r'\\s+')).where((w) => w.isNotEmpty).length,
+  'chars': text.replaceAll(RegExp(r'\\s'), '').length,
+  'sentences': text.split(RegExp(r'[.!?]+')).where((s) => s.trim().isNotEmpty).length,
+};
+
+void processArgs(List<String> args) {
+  if (args.isEmpty) {
+    const sample = 'The quick brown fox. It runs fast! Can it jump? Yes.';
+    final s = analyzeText(sample);
+    print('Sample: "\${sample.substring(0,30)}..."');
+    print('Words: \${s['words']}, Chars: \${s['chars']}, Sentences: \${s['sentences']}');
+    print('\\nPlatform: \${Platform.operatingSystem}');
+  } else {
+    final s = analyzeText(args.join(' '));
+    print('words=\${s['words']} chars=\${s['chars']} sentences=\${s['sentences']}');
+  }
+}
+
+void main(List<String> args) => processArgs(args);`,
+    expectedOutput: `Sample: "The quick brown fox. It runs fast! C..."\nWords: 12, Chars: 39, Sentences: 4\n\nPlatform: linux`,
+    quiz: [
+      { question: 'How do you access CLI arguments in Dart?', options: ['Using args global', 'As List<String> args parameter of main()', 'Using System.argv', 'Using Platform.arguments'], correctAnswerIndex: 1 },
+      { question: 'Which command compiles Dart to a native executable?', options: ['dart build', 'dart compile exe', 'dart package', 'dart bundle'], correctAnswerIndex: 1 },
+      { question: 'Which class provides stdin/stdout in Dart?', options: ['Console', 'IO', 'System', 'Top-level objects from dart:io'], correctAnswerIndex: 3 },
+    ],
+    exercise: {
+      instruction: 'Write processArgs(List<String> args) that parses --name <value> and --shout flag. Print "Hello, <name>!" or uppercase if --shout. Print usage if no args.',
+      starterCode: `import 'dart:io';
+
+void processArgs(List<String> args) {
+  // Parse --name and --shout
+}
+
+void main() {
+  processArgs([]);
+  processArgs(['--name', 'Alice']);
+  processArgs(['--name', 'Bob', '--shout']);
+}`,
+      solution: `import 'dart:io';
+
+void processArgs(List<String> args) {
+  if (args.isEmpty) { print('Usage: tool --name <name> [--shout]'); return; }
+  String? name;
+  bool shout = false;
+  for (int i = 0; i < args.length; i++) {
+    if (args[i] == '--name' && i + 1 < args.length) name = args[++i];
+    else if (args[i] == '--shout') shout = true;
+  }
+  if (name == null) { print('Error: --name required'); return; }
+  var msg = 'Hello, \$name!';
+  print(shout ? msg.toUpperCase() : msg);
+}
+
+void main() {
+  processArgs([]);
+  processArgs(['--name', 'Alice']);
+  processArgs(['--name', 'Bob', '--shout']);
+}`,
+    },
+  },
+
+  {
+    id: 60,
+    level: 'Intermediate',
+    title: 'Performance and Profiling',
+    content: `# Performance Optimisation in Dart
+
+Write efficient Dart by making good algorithmic choices and avoiding unnecessary work — profile first, optimise second.
+
+## Benchmarking with Stopwatch
+
+\`\`\`dart
+final sw = Stopwatch()..start();
+doWork();
+print('Time: \${sw.elapsedMilliseconds}ms');
+\`\`\`
+
+## Key Optimisation Tips
+
+**StringBuffer over string concatenation in loops:**
+\`\`\`dart
+// Bad O(n²):
+var s = '';
+for (final p in parts) s += p;
+
+// Good O(n):
+final buf = StringBuffer();
+for (final p in parts) buf.write(p);
+final s = buf.toString();
+\`\`\`
+
+**Lazy Iterables — avoid premature .toList():**
+\`\`\`dart
+numbers.where((n) => n > 0).map((n) => n * 2).first; // no intermediate list
+\`\`\`
+
+**Compile RegExp once outside loops:**
+\`\`\`dart
+final re = RegExp(r'\\s');
+for (final s in strings) s.replaceAll(re, '');
+\`\`\`
+
+**const constructors** — reuse compile-time constant objects.
+
+## JIT vs AOT
+
+- JIT (dev): hot reload, slower startup.
+- AOT (release): fast startup, optimised native code.`,
+    tips: [
+      'StringBuffer is 10–100× faster than += in a loop for many items.',
+      'Use const wherever possible — the compiler can eliminate redundant allocations.',
+      "Profile with DevTools (flutter run --profile) or dart run --observe.",
+    ],
+    codeSnippet: `void benchmark(String name, void Function() fn, {int n = 500}) {
+  final sw = Stopwatch()..start();
+  for (int i = 0; i < n; i++) fn();
+  sw.stop();
+  print('\$name: \${sw.elapsedMicroseconds ~/ n}µs avg');
+}
+
+void main() {
+  final words = List.generate(500, (i) => 'word\$i');
+
+  benchmark('String += (500)', () {
+    var s = ''; for (final w in words) s += '\$w ';
+  });
+
+  benchmark('StringBuffer (500)', () {
+    final buf = StringBuffer();
+    for (final w in words) buf.write('\$w ');
+    buf.toString();
+  });
+
+  final numbers = List.generate(100000, (i) => i);
+
+  benchmark('Eager .toList().first', () {
+    numbers.where((n) => n > 50000).map((n) => n * 2).toList().first;
+  }, n: 100);
+
+  benchmark('Lazy .first (no toList)', () {
+    numbers.where((n) => n > 50000).map((n) => n * 2).first;
+  }, n: 100);
+
+  print('\\n✓ Use StringBuffer for string-heavy loops');
+  print('✓ Use lazy Iterables — skip .toList() until needed');
+}`,
+    expectedOutput: `String += (500): <N>µs avg\nStringBuffer (500): <N>µs avg\nEager .toList().first: <N>µs avg\nLazy .first (no toList): <N>µs avg\n\n✓ Use StringBuffer for string-heavy loops\n✓ Use lazy Iterables — skip .toList() until needed`,
+    quiz: [
+      { question: 'What class replaces string concatenation in a loop?', options: ['StringBuilder', 'StringJoiner', 'StringBuffer', 'StringWriter'], correctAnswerIndex: 2 },
+      { question: 'Why is lazy evaluation faster in some cases?', options: ['Uses less CPU', 'Avoids an intermediate collection when only part of the result is needed', 'Parallelises automatically', 'Uses native code'], correctAnswerIndex: 1 },
+      { question: 'What is the difference between JIT and AOT?', options: ['JIT is for mobile; AOT is for web', 'JIT compiles at runtime (dev); AOT compiles ahead of time for fast production startup', 'AOT is slower but safer', 'They produce identical output'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Benchmark string concatenation vs StringBuffer for building a CSV from 1000 rows. Print elapsed microseconds for each and confirm StringBuffer is faster.',
+      starterCode: `void main() {
+  final rows = List.generate(1000, (i) => '\$i,item\$i,\${i * 2.5}');
+
+  // Benchmark 1: +=
+  // Benchmark 2: StringBuffer
+}`,
+      solution: `void main() {
+  final rows = List.generate(1000, (i) => '\$i,item\$i,\${i * 2.5}');
+
+  final sw1 = Stopwatch()..start();
+  var r1 = '';
+  for (final row in rows) r1 += '\$row\\n';
+  sw1.stop();
+  print('String +=:      \${sw1.elapsedMicroseconds}µs (\${r1.length} chars)');
+
+  final sw2 = Stopwatch()..start();
+  final buf = StringBuffer();
+  for (final row in rows) buf.writeln(row);
+  final r2 = buf.toString();
+  sw2.stop();
+  print('StringBuffer:   \${sw2.elapsedMicroseconds}µs (\${r2.length} chars)');
+
+  final ratio = sw1.elapsedMicroseconds / sw2.elapsedMicroseconds;
+  print('StringBuffer is \${ratio.toStringAsFixed(1)}x faster');
+}`,
+    },
+  },
+
+
+{
+    id: 61,
+    level: 'Advanced',
+    title: 'Metaprogramming with Mirrors (dart:mirrors)',
+    content: `# Reflection with dart:mirrors
+
+\`dart:mirrors\` provides runtime introspection — reading class structure, calling methods by name, and inspecting annotations. It is available in Dart CLI/server apps (not Flutter/AOT).
+
+## Why Mirrors?
+
+- Building serialization frameworks
+- Dependency injection containers
+- Testing utilities (mocking)
+- Code generation tools
+
+## Basic Reflection
+
+\`\`\`dart
+import 'dart:mirrors';
+
+class Person {
+  final String name;
+  final int age;
+  Person(this.name, this.age);
+  void greet() => print('Hi, I am \$name');
+}
+
+void main() {
+  final person = Person('Alice', 30);
+  final mirror = reflect(person);
+
+  // Call a method by name
+  mirror.invoke(Symbol('greet'), []);
+
+  // Read a field
+  print(mirror.getField(#name).reflectee);
+}
+\`\`\`
+
+## ClassMirror — Inspect a Class
+
+\`\`\`dart
+final classMirror = reflectClass(Person);
+classMirror.declarations.forEach((symbol, decl) {
+  print(MirrorSystem.getName(symbol));
+});
+\`\`\`
+
+## Annotations
+
+\`\`\`dart
+class JsonField {
+  final String name;
+  const JsonField(this.name);
+}
+
+class User {
+  @JsonField('first_name')
+  final String firstName;
+}
+\`\`\`
+
+You can read annotations via \`VariableMirror.metadata\`.`,
+    tips: [
+      'dart:mirrors is not available in Flutter or AOT-compiled Dart — use code generation (build_runner) instead.',
+      'Mirrors add startup overhead — consider static code generation for production use.',
+      'Understanding mirrors deeply helps when evaluating code-generation packages like freezed and json_serializable.',
+    ],
+    codeSnippet: `// Note: dart:mirrors is CLI-only. This simulates its behavior.
+// In real code: import 'dart:mirrors';
+
+// Simulate annotation-based serialization (mirrors concept)
+class JsonField {
+  final String key;
+  const JsonField(this.key);
+}
+
+// In a real mirrors-based approach, we'd read @JsonField at runtime.
+// We simulate it with a manual registry here to illustrate the concept:
+class Serializer {
+  static Map<String, dynamic> serialize(Object obj, Map<String, String> fieldMap) {
+    final result = <String, dynamic>{};
+    // In real mirrors code: reflect(obj).getField(Symbol(field)).reflectee
+    // We rely on the fieldMap for simulation
+    return result;
+  }
+}
+
+class Product {
+  @JsonField('product_name')
+  final String name;
+  @JsonField('unit_price')
+  final double price;
+  @JsonField('stock_count')
+  final int stock;
+
+  Product({required this.name, required this.price, required this.stock});
+}
+
+// Simulate what mirrors serialization would produce
+Map<String, dynamic> toJson(Product p) => {
+  'product_name': p.name,
+  'unit_price': p.price,
+  'stock_count': p.stock,
+};
+
+void main() {
+  final p = Product(name: 'Laptop', price: 999.99, stock: 42);
+  final json = toJson(p);
+  print('Serialized: \$json');
+  print('');
+  print('In real dart:mirrors code you would:');
+  print('1. reflect(p) → InstanceMirror');
+  print('2. Inspect @JsonField annotations on each field');
+  print('3. Use field.getField(symbol).reflectee to get the value');
+  print('4. Build the JSON map dynamically');
+}`,
+    expectedOutput: `Serialized: {product_name: Laptop, unit_price: 999.99, stock_count: 42}\n\nIn real dart:mirrors code you would:\n1. reflect(p) → InstanceMirror\n2. Inspect @JsonField annotations on each field\n3. Use field.getField(symbol).reflectee to get the value\n4. Build the JSON map dynamically`,
+    quiz: [
+      { question: 'Where is dart:mirrors NOT available?', options: ['Dart CLI apps', 'Dart server apps', 'Flutter (AOT) apps', 'Dart testing tools'], correctAnswerIndex: 2 },
+      { question: 'What is a Symbol in Dart mirrors used for?', options: ['A constant String identifier', 'A runtime name used to refer to declarations', 'A compile-time annotation', 'A thread-safe reference'], correctAnswerIndex: 1 },
+      { question: 'What is the production alternative to dart:mirrors for code generation?', options: ['dart:isolate', 'dart:async', 'build_runner with source_gen', 'dart:io'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Simulate annotation-based validation: create a @MinLength(n) annotation class. Write a validate(Object obj, Map<String, int> minLengths) function that checks string fields against their minimum lengths and returns a list of error messages.',
+      starterCode: `class MinLength {
+  final int length;
+  const MinLength(this.length);
+}
+
+// Simulate mirror-based validation
+List<String> validate(Map<String, dynamic> fields, Map<String, int> minLengths) {
+  // Check each field against its minLength constraint
+}
+
+void main() {
+  final errors = validate(
+    {'username': 'Al', 'password': 'pass', 'email': 'alice@example.com'},
+    {'username': 3, 'password': 8},
+  );
+  print(errors);
+}`,
+      solution: `class MinLength {
+  final int length;
+  const MinLength(this.length);
+}
+
+List<String> validate(Map<String, dynamic> fields, Map<String, int> minLengths) {
+  final errors = <String>[];
+  for (final entry in minLengths.entries) {
+    final value = fields[entry.key];
+    if (value is String && value.length < entry.value) {
+      errors.add('\${entry.key} must be at least \${entry.value} characters (got \${value.length})');
+    }
+  }
+  return errors;
+}
+
+void main() {
+  final errors = validate(
+    {'username': 'Al', 'password': 'pass', 'email': 'alice@example.com'},
+    {'username': 3, 'password': 8},
+  );
+  print(errors);
+}`,
+    },
+  },
+
+  {
+    id: 62,
+    level: 'Advanced',
+    title: 'Code Generation with build_runner',
+    content: `# Code Generation in Dart
+
+Many Dart packages (freezed, json_serializable, injectable, riverpod_generator) use source code generation via \`build_runner\` to eliminate boilerplate.
+
+## How It Works
+
+1. You annotate your code: \`@JsonSerializable()\`, \`@freezed\`, etc.
+2. Run: \`dart run build_runner build\`
+3. Generated files (e.g., \`user.g.dart\`) appear alongside your source.
+
+## json_serializable Example
+
+\`\`\`yaml
+# pubspec.yaml
+dependencies:
+  json_annotation: ^4.8.0
+dev_dependencies:
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.0
+\`\`\`
+
+\`\`\`dart
+// user.dart
+import 'package:json_annotation/json_annotation.dart';
+part 'user.g.dart';
+
+@JsonSerializable()
+class User {
+  final String name;
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;
+
+  User({required this.name, required this.createdAt});
+
+  factory User.fromJson(Map<String, dynamic> json) => _\$UserFromJson(json);
+  Map<String, dynamic> toJson() => _\$UserToJson(this);
+}
+\`\`\`
+
+## freezed Example
+
+Generates immutable data classes with copyWith, pattern matching, and union types:
+\`\`\`dart
+@freezed
+class Result<T> with _\$Result<T> {
+  const factory Result.success(T data) = Success;
+  const factory Result.failure(String error) = Failure;
+}
+\`\`\`
+
+## Running the Generator
+
+\`\`\`bash
+dart run build_runner build           # one-shot
+dart run build_runner watch           # watch mode
+dart run build_runner build --delete-conflicting-outputs
+\`\`\``,
+    tips: [
+      'Run build_runner watch during development so generated files update automatically as you code.',
+      'Commit generated .g.dart files to source control — they are part of your app code.',
+      'If generation fails, delete generated files and re-run with --delete-conflicting-outputs.',
+    ],
+    codeSnippet: `// This demonstrates what json_serializable generates for you.
+// In a real project, you write the annotated class and build_runner generates this.
+
+import 'dart:convert';
+
+// What you WRITE:
+class Address {
+  final String street;
+  final String city;
+  final String country;
+  Address({required this.street, required this.city, required this.country});
+  // With @JsonSerializable() + build_runner, these are generated:
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+        street: json['street'] as String,
+        city: json['city'] as String,
+        country: json['country'] as String,
+      );
+  Map<String, dynamic> toJson() => {'street': street, 'city': city, 'country': country};
+}
+
+class UserProfile {
+  final int id;
+  final String name;
+  final String email;
+  final Address address;
+  final List<String> roles;
+  UserProfile({required this.id, required this.name, required this.email, required this.address, required this.roles});
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+        id: json['id'] as int,
+        name: json['name'] as String,
+        email: json['email'] as String,
+        address: Address.fromJson(json['address'] as Map<String, dynamic>),
+        roles: (json['roles'] as List).cast<String>(),
+      );
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'email': email, 'address': address.toJson(), 'roles': roles};
+}
+
+void main() {
+  const raw = '''
+  {
+    "id": 1,
+    "name": "Alice",
+    "email": "alice@example.com",
+    "address": {"street": "123 Main St", "city": "Cairo", "country": "Egypt"},
+    "roles": ["admin", "user"]
+  }''';
+
+  final profile = UserProfile.fromJson(json.decode(raw));
+  print('User: \${profile.name} (\${profile.roles.join(', ')})');
+  print('City: \${profile.address.city}');
+  print('Re-encoded: \${json.encode(profile.toJson()).substring(0,50)}...');
+}`,
+    expectedOutput: `User: Alice (admin, user)\nCity: Cairo\nRe-encoded: {"id":1,"name":"Alice","email":"alice@example.c...`,
+    quiz: [
+      { question: 'What command runs build_runner to generate code once?', options: ['dart codegen', 'dart build', 'dart run build_runner build', 'dart generate'], correctAnswerIndex: 2 },
+      { question: 'Should generated .g.dart files be committed to version control?', options: ['No, always gitignore them', 'Yes, they are part of your app', 'Only in production branches', 'Only when using freezed'], correctAnswerIndex: 1 },
+      { question: 'What does the freezed package generate for union types?', options: ['HTTP client code', 'Immutable data classes with copyWith and pattern matching support', 'Database schemas', 'API routes'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Manually write what build_runner would generate: a copyWith method for an immutable Config class with host (String), port (int), and debug (bool) fields. Test that Config(...).copyWith(port: 9090) returns a new object with only port changed.',
+      starterCode: `class Config {
+  final String host;
+  final int port;
+  final bool debug;
+
+  const Config({required this.host, required this.port, required this.debug});
+
+  // Write copyWith manually (what freezed would generate)
+
+  @override
+  String toString() => 'Config(host=\$host, port=\$port, debug=\$debug)';
+}
+
+void main() {
+  const base = Config(host: 'localhost', port: 8080, debug: false);
+  final prod = base.copyWith(host: 'api.example.com', port: 443);
+  final dev = base.copyWith(debug: true);
+  print(base);
+  print(prod);
+  print(dev);
+}`,
+      solution: `class Config {
+  final String host;
+  final int port;
+  final bool debug;
+
+  const Config({required this.host, required this.port, required this.debug});
+
+  Config copyWith({String? host, int? port, bool? debug}) => Config(
+    host: host ?? this.host,
+    port: port ?? this.port,
+    debug: debug ?? this.debug,
+  );
+
+  @override
+  String toString() => 'Config(host=\$host, port=\$port, debug=\$debug)';
+}
+
+void main() {
+  const base = Config(host: 'localhost', port: 8080, debug: false);
+  final prod = base.copyWith(host: 'api.example.com', port: 443);
+  final dev = base.copyWith(debug: true);
+  print(base);
+  print(prod);
+  print(dev);
+}`,
+    },
+  },
+
+  {
+    id: 63,
+    level: 'Advanced',
+    title: 'Advanced Async — Zones and Schedulers',
+    content: `# Zones in Dart
+
+A **Zone** is an execution context that intercepts asynchronous operations. Zones let you:
+- Catch uncaught exceptions globally
+- Intercept async callbacks, timers, and microtasks
+- Override \`print\`
+
+## runZonedGuarded
+
+\`\`\`dart
+runZonedGuarded(
+  () {
+    // All async code inside is guarded
+    Future.delayed(Duration.zero, () => throw 'async error!');
+  },
+  (error, stack) {
+    print('Caught: \$error');
+  },
+);
+\`\`\`
+
+## Zone.current.fork()
+
+Create a custom zone with overrides:
+\`\`\`dart
+Zone.current.fork(
+  specification: ZoneSpecification(
+    print: (zone, parent, self, line) {
+      parent.print(zone, self, '[PREFIXED] \$line');
+    },
+  ),
+).run(() {
+  print('Hello'); // prints "[PREFIXED] Hello"
+});
+\`\`\`
+
+## Microtasks vs Event Queue
+
+Dart's event loop has two queues:
+- **Microtask queue**: runs before any event (e.g., \`Future.microtask\`, \`scheduleMicrotask\`)
+- **Event queue**: I/O, timers, user events
+
+\`\`\`dart
+scheduleMicrotask(() => print('microtask'));
+Future.delayed(Duration.zero, () => print('event'));
+print('sync');
+// Prints: sync → microtask → event
+\`\`\``,
+    tips: [
+      'In Flutter apps, runZonedGuarded is commonly used to catch uncaught async exceptions globally in main().',
+      'Microtasks run before any event — use them for truly immediate post-synchronous scheduling.',
+      'Overusing zones adds overhead. Use them for error handling and testing, not general logic.',
+    ],
+    codeSnippet: `import 'dart:async';
+
+void main() {
+  // 1. Demonstrate microtask vs event queue ordering
+  print('1. sync start');
+
+  scheduleMicrotask(() => print('3. microtask 1'));
+  scheduleMicrotask(() => print('4. microtask 2'));
+  Future.delayed(Duration.zero, () => print('6. event queue'));
+  Future.microtask(() => print('5. Future.microtask'));
+
+  print('2. sync end');
+
+  // 2. runZonedGuarded — catch async errors
+  runZonedGuarded(
+    () {
+      Future.delayed(const Duration(milliseconds: 50), () {
+        throw StateError('Something went wrong asynchronously!');
+      });
+    },
+    (error, stack) {
+      print('\\n7. Caught zone error: \${error.runtimeType}');
+    },
+  );
+
+  // 3. Zone override — intercept print
+  Zone.current.fork(
+    specification: ZoneSpecification(
+      print: (_, parent, self, line) {
+        parent.print(self, self, '[LOG] \$line');
+      },
+    ),
+  ).run(() {
+    print('\\n8. This goes through custom zone');
+  });
+}`,
+    expectedOutput: `1. sync start\n2. sync end\n3. microtask 1\n4. microtask 2\n5. Future.microtask\n6. event queue\n\n7. Caught zone error: StateError\n\n[LOG] \n8. This goes through custom zone`,
+    quiz: [
+      { question: 'What is the order of execution in Dart\'s event loop?', options: ['Events, then microtasks', 'Microtasks, then events', 'Sync code, then microtasks, then events', 'Events and microtasks are interleaved randomly'], correctAnswerIndex: 2 },
+      { question: 'What does runZonedGuarded allow you to do?', options: ['Run code in a separate isolate', 'Catch all uncaught exceptions (including async) in a zone', 'Create a sandboxed environment', 'Run synchronous code asynchronously'], correctAnswerIndex: 1 },
+      { question: 'Which queue does scheduleMicrotask use?', options: ['The event queue', 'The render queue', 'The microtask queue', 'A new queue per call'], correctAnswerIndex: 2 },
+    ],
+    exercise: {
+      instruction: 'Write a function withLogging(void Function() body) that runs body inside a forked Zone that intercepts print and prepends "[<timestamp>]" to every printed line. Test it with a few print calls.',
+      starterCode: `import 'dart:async';
+
+void withLogging(void Function() body) {
+  // Fork a zone that intercepts print
+}
+
+void main() {
+  withLogging(() {
+    print('Application started');
+    print('Processing data');
+    print('Done');
+  });
+  print('This is outside the logging zone');
+}`,
+      solution: `import 'dart:async';
+
+void withLogging(void Function() body) {
+  Zone.current.fork(
+    specification: ZoneSpecification(
+      print: (_, parent, self, line) {
+        final ts = DateTime.now().toIso8601String().substring(11, 19);
+        parent.print(self, self, '[\$ts] \$line');
+      },
+    ),
+  ).run(body);
+}
+
+void main() {
+  withLogging(() {
+    print('Application started');
+    print('Processing data');
+    print('Done');
+  });
+  print('This is outside the logging zone');
+}`,
+    },
+  },
+
+  {
+    id: 64,
+    level: 'Advanced',
+    title: 'StreamController and Custom Streams',
+    content: `# StreamController and Custom Streams
+
+While \`async*\` generators are great for simple streams, \`StreamController\` gives you full control — you can push events at any time from any code path.
+
+## StreamController
+
+\`\`\`dart
+final controller = StreamController<int>();
+final stream = controller.stream;
+
+// Listen
+stream.listen(print, onError: print, onDone: () => print('Done'));
+
+// Push values
+controller.add(1);
+controller.add(2);
+controller.addError('oops!');
+controller.close(); // triggers onDone
+\`\`\`
+
+## Broadcast Stream Controller
+
+A regular StreamController allows only one listener. For multiple listeners:
+\`\`\`dart
+final controller = StreamController<String>.broadcast();
+controller.stream.listen((e) => print('Listener 1: \$e'));
+controller.stream.listen((e) => print('Listener 2: \$e'));
+controller.add('Hello'); // Both listeners receive it
+\`\`\`
+
+## Stream Transformers
+
+\`\`\`dart
+final transformer = StreamTransformer<String, int>.fromHandlers(
+  handleData: (data, sink) => sink.add(data.length),
+  handleError: (e, st, sink) => sink.addError(e),
+);
+stream.transform(transformer).listen(print);
+\`\`\`
+
+## StreamSubscription Management
+
+\`\`\`dart
+final sub = stream.listen(print);
+sub.pause();
+sub.resume();
+await sub.cancel();
+\`\`\``,
+    tips: [
+      'Always close StreamControllers when you are done to free resources and trigger onDone.',
+      'Use broadcast streams only when you need multiple listeners — they drop events if no one is listening.',
+      'StreamSubscription.cancel() returns a Future — await it when cleanup order matters.',
+    ],
+    codeSnippet: `import 'dart:async';
+
+class EventBus {
+  final _controller = StreamController<Map<String, dynamic>>.broadcast();
+
+  Stream<Map<String, dynamic>> on(String event) =>
+      _controller.stream.where((e) => e['type'] == event);
+
+  void emit(String event, [dynamic data]) {
+    _controller.add({'type': event, 'data': data, 'ts': DateTime.now().millisecondsSinceEpoch});
+  }
+
+  Future<void> close() => _controller.close();
+}
+
+void main() async {
+  final bus = EventBus();
+
+  // Multiple listeners for same event
+  bus.on('userLogin').listen((e) => print('Auth: user logged in [\${e['data']}]'));
+  bus.on('userLogin').listen((e) => print('Analytics: login event for \${e['data']}'));
+  bus.on('pageView').listen((e) => print('Tracker: page \${e['data']} viewed'));
+
+  bus.emit('userLogin', 'alice@example.com');
+  bus.emit('pageView', '/dashboard');
+  bus.emit('userLogin', 'bob@example.com');
+  bus.emit('pageView', '/settings');
+
+  await Future.delayed(Duration(milliseconds: 10));
+  await bus.close();
+  print('EventBus closed');
+}`,
+    expectedOutput: `Auth: user logged in [alice@example.com]\nAnalytics: login event for alice@example.com\nTracker: page /dashboard viewed\nAuth: user logged in [bob@example.com]\nAnalytics: login event for bob@example.com\nTracker: page /settings viewed\nEventBus closed`,
+    quiz: [
+      { question: 'What is the difference between StreamController and StreamController.broadcast()?', options: ['Broadcast is faster', 'Regular allows one listener; broadcast allows multiple', 'Broadcast buffers events; regular does not', 'They are identical'], correctAnswerIndex: 1 },
+      { question: 'What happens when you call controller.close()?', options: ['The stream is paused', 'Future events are dropped silently', 'Listeners receive the onDone callback', 'The controller throws an exception'], correctAnswerIndex: 2 },
+      { question: 'What does a StreamTransformer do?', options: ['Converts a Stream to a Future', 'Transforms the events of a stream into a new stream', 'Broadcasts to multiple streams', 'Splits a stream into parallel streams'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Build a RateLimiter class that wraps a StreamController<T>. It exposes a Stream<T> that only allows at most one event per minInterval duration. Emit more frequently in main and verify throttling.',
+      starterCode: `import 'dart:async';
+
+class RateLimiter<T> {
+  final Duration minInterval;
+  RateLimiter(this.minInterval);
+
+  DateTime? _lastEmit;
+  final _controller = StreamController<T>.broadcast();
+  Stream<T> get stream => _controller.stream;
+
+  void add(T event) {
+    // Only forward if enough time has passed
+  }
+
+  Future<void> close() => _controller.close();
+}
+
+void main() async {
+  final limiter = RateLimiter<int>(Duration(milliseconds: 100));
+  limiter.stream.listen((e) => print('Received: \$e at \${DateTime.now().millisecondsSinceEpoch}'));
+
+  for (int i = 1; i <= 6; i++) {
+    limiter.add(i);
+    await Future.delayed(Duration(milliseconds: 50));
+  }
+  await limiter.close();
+}`,
+      solution: `import 'dart:async';
+
+class RateLimiter<T> {
+  final Duration minInterval;
+  RateLimiter(this.minInterval);
+
+  DateTime? _lastEmit;
+  final _controller = StreamController<T>.broadcast();
+  Stream<T> get stream => _controller.stream;
+
+  void add(T event) {
+    final now = DateTime.now();
+    if (_lastEmit == null || now.difference(_lastEmit!) >= minInterval) {
+      _lastEmit = now;
+      _controller.add(event);
+    }
+  }
+
+  Future<void> close() => _controller.close();
+}
+
+void main() async {
+  final limiter = RateLimiter<int>(Duration(milliseconds: 100));
+  limiter.stream.listen((e) => print('Received: \$e'));
+
+  for (int i = 1; i <= 6; i++) {
+    limiter.add(i);
+    await Future.delayed(Duration(milliseconds: 50));
+  }
+  await limiter.close();
+}`,
+    },
+  },
+
+  {
+    id: 65,
+    level: 'Advanced',
+    title: 'Immutable Data and Value Objects',
+    content: `# Immutable Data Patterns
+
+Immutability — objects that cannot change after creation — reduces bugs from shared mutable state and makes code easier to reason about.
+
+## const and final for Immutability
+
+\`\`\`dart
+const point = Point(3, 4); // compile-time constant, deeply immutable
+final list = const [1, 2, 3]; // immutable list
+\`\`\`
+
+## Immutable Classes
+
+\`\`\`dart
+class Money {
+  final int cents;
+  final String currency;
+  const Money(this.cents, this.currency);
+
+  Money operator +(Money other) {
+    assert(currency == other.currency);
+    return Money(cents + other.cents, currency);
+  }
+
+  Money copyWith({int? cents, String? currency}) =>
+      Money(cents ?? this.cents, currency ?? this.currency);
+}
+\`\`\`
+
+## Unmodifiable Collections
+
+\`\`\`dart
+final items = List.unmodifiable([1, 2, 3]);
+final config = Map.unmodifiable({'key': 'value'});
+\`\`\`
+
+## Value Equality
+
+Immutable objects are usually value objects — two instances with the same data should be equal:
+\`\`\`dart
+@override
+bool operator ==(Object other) =>
+    other is Money && cents == other.cents && currency == other.currency;
+
+@override
+int get hashCode => Object.hash(cents, currency);
+\`\`\`
+
+## Why Immutability Matters in Flutter
+
+Flutter rebuilds widgets efficiently by comparing old and new state. Immutable state objects make this comparison \`O(1)\` (reference equality or value equality) instead of deep comparisons.`,
+    tips: [
+      'Immutable objects are inherently thread-safe — no synchronization needed across isolates.',
+      'Use const constructors wherever possible — Dart can deduplicate const objects at compile time.',
+      'copyWith is the standard pattern for "modifying" immutable objects — it returns a new instance.',
+    ],
+    codeSnippet: `class Vec3 {
+  final double x, y, z;
+  const Vec3(this.x, this.y, this.z);
+
+  static const zero = Vec3(0, 0, 0);
+  static const unitX = Vec3(1, 0, 0);
+  static const unitY = Vec3(0, 1, 0);
+  static const unitZ = Vec3(0, 0, 1);
+
+  double get magnitude => (x*x + y*y + z*z) == 0 ? 0 : _sqrt(x*x + y*y + z*z);
+  static double _sqrt(double v) {
+    double g = v / 2;
+    for (int i = 0; i < 50; i++) g = (g + v / g) / 2;
+    return g;
+  }
+
+  Vec3 operator +(Vec3 o) => Vec3(x+o.x, y+o.y, z+o.z);
+  Vec3 operator -(Vec3 o) => Vec3(x-o.x, y-o.y, z-o.z);
+  Vec3 operator *(double s) => Vec3(x*s, y*s, z*s);
+  double dot(Vec3 o) => x*o.x + y*o.y + z*o.z;
+  Vec3 cross(Vec3 o) => Vec3(y*o.z - z*o.y, z*o.x - x*o.z, x*o.y - y*o.x);
+  Vec3 get normalized { final m = magnitude; return m == 0 ? zero : Vec3(x/m, y/m, z/m); }
+
+  @override
+  bool operator ==(Object o) => o is Vec3 && x==o.x && y==o.y && z==o.z;
+  @override
+  int get hashCode => Object.hash(x, y, z);
+  @override
+  String toString() => 'Vec3(\${x.toStringAsFixed(2)}, \${y.toStringAsFixed(2)}, \${z.toStringAsFixed(2)})';
+}
+
+void main() {
+  final a = Vec3(1, 2, 3);
+  final b = Vec3(4, 5, 6);
+  print('a + b = \${a + b}');
+  print('a · b = \${a.dot(b)}');
+  print('a × b = \${a.cross(b)}');
+  print('|a| = \${a.magnitude.toStringAsFixed(4)}');
+  print('normalized a = \${a.normalized}');
+  print('a == Vec3(1,2,3): \${a == Vec3(1,2,3)}');
+
+  // Demonstrate immutability
+  final c = a + b;
+  print('a unchanged: \$a');
+  print('c (a+b): \$c');
+}`,
+    expectedOutput: `a + b = Vec3(5.00, 7.00, 9.00)\na · b = 32.0\na × b = Vec3(-3.00, 6.00, -3.00)\n|a| = 3.7417\nnormalized a = Vec3(0.27, 0.53, 0.80)\na == Vec3(1,2,3): true\na unchanged: Vec3(1.00, 2.00, 3.00)\nc (a+b): Vec3(5.00, 7.00, 9.00)`,
+    quiz: [
+      { question: 'What does List.unmodifiable() return?', options: ['A new empty list', 'A copy of the list that throws when modified', 'A null-safe list', 'A sorted list'], correctAnswerIndex: 1 },
+      { question: 'Why are immutable objects thread-safe?', options: ['They are stored in read-only memory', 'They cannot be modified, so no synchronization is needed', 'Dart locks them automatically', 'They live only in one isolate'], correctAnswerIndex: 1 },
+      { question: 'What is the copyWith pattern?', options: ['Deep cloning an object', 'Returning a new instance with some fields changed', 'Converting mutable to immutable', 'Creating a prototype'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Create an immutable Color class (red, green, blue: 0-255 int) with const constructor, operator ==, hashCode, copyWith, and methods: Color blend(Color other) (average RGB), Color get inverted (255 - each channel), and String get hex (e.g. "#FF8040").',
+      starterCode: `class Color {
+  final int red, green, blue;
+  const Color(this.red, this.green, this.blue);
+
+  // copyWith, operator ==, hashCode
+  // blend, inverted, hex
+}
+
+void main() {
+  const red = Color(255, 0, 0);
+  const blue = Color(0, 0, 255);
+  print(red.hex);
+  print(blue.inverted.hex);
+  print(red.blend(blue).hex);
+}`,
+      solution: `class Color {
+  final int red, green, blue;
+  const Color(this.red, this.green, this.blue);
+
+  Color copyWith({int? red, int? green, int? blue}) =>
+      Color(red ?? this.red, green ?? this.green, blue ?? this.blue);
+
+  @override
+  bool operator ==(Object o) =>
+      o is Color && red == o.red && green == o.green && blue == o.blue;
+
+  @override
+  int get hashCode => Object.hash(red, green, blue);
+
+  Color blend(Color other) => Color(
+    (red + other.red) ~/ 2,
+    (green + other.green) ~/ 2,
+    (blue + other.blue) ~/ 2,
+  );
+
+  Color get inverted => Color(255 - red, 255 - green, 255 - blue);
+
+  String get hex {
+    String h(int v) => v.toRadixString(16).padLeft(2, '0').toUpperCase();
+    return '#\${h(red)}\${h(green)}\${h(blue)}';
+  }
+
+  @override
+  String toString() => hex;
+}
+
+void main() {
+  const red = Color(255, 0, 0);
+  const blue = Color(0, 0, 255);
+  print(red.hex);
+  print(blue.inverted.hex);
+  print(red.blend(blue).hex);
+}`,
+    },
+  },
+
+  {
+    id: 66,
+    level: 'Advanced',
+    title: 'Advanced Generics — Variance and Type Bounds',
+    content: `# Advanced Generics
+
+## Covariance and Contravariance
+
+Dart generic types are **invariant** by default: a \`List<Dog>\` is NOT a \`List<Animal>\`, even if \`Dog extends Animal\`.
+
+However, function types are covariant in return type and contravariant in parameter types:
+\`\`\`dart
+Animal Function() producer = Dog Function() dogProducer;  // OK (covariant return)
+void Function(Dog) consumer = void Function(Animal) animals;  // OK (contravariant param)
+\`\`\`
+
+## Bounded Wildcards (Covariant Parameters)
+
+Mark a parameter \`covariant\` to accept subtypes:
+\`\`\`dart
+class AnimalShelter {
+  final List<Animal> _animals = [];
+  void add(covariant Dog animal) => _animals.add(animal);
+}
+\`\`\`
+
+## Multiple Bounds with &
+
+Dart doesn't support multiple bounds directly (\`T extends A & B\`), but you can use mixins or interfaces:
+\`\`\`dart
+abstract class Printable { void print(); }
+abstract class Serializable { String serialize(); }
+// Use an interface that extends both:
+abstract class PrintableAndSerializable implements Printable, Serializable {}
+T process<T extends PrintableAndSerializable>(T item) { ... }
+\`\`\`
+
+## Generic Type Aliases (Dart 2.13+)
+
+\`\`\`dart
+typedef Predicate<T> = bool Function(T);
+typedef Result<T> = ({T? value, String? error});
+\`\`\`
+
+## Reified Generics
+
+Unlike Java, Dart reifies generic types at runtime:
+\`\`\`dart
+print(<int>[] is List<int>);    // true
+print(<int>[] is List<String>); // false
+\`\`\``,
+    tips: [
+      'Dart\'s reified generics (unlike Java erasure) mean you can check generic types at runtime with is.',
+      'The covariant keyword on method parameters is a power tool — use it only when you understand the implications.',
+      'Generic type aliases (typedef Result<T> = ...) are extremely useful for reducing verbosity in complex APIs.',
+    ],
+    codeSnippet: `// Reified generics demo
+void inspectType<T>(T value) {
+  print('Runtime type: \${value.runtimeType}');
+  print('Is List<int>: \${value is List<int>}');
+  print('Is List<String>: \${value is List<String>}');
+  print('Is List: \${value is List}');
+}
+
+// Bounded generic with multiple constraints via interface
+abstract class Measurable {
+  double get size;
+}
+
+abstract class Labelable {
+  String get label;
+}
+
+abstract class MeasurableAndLabelable implements Measurable, Labelable {}
+
+class Box extends MeasurableAndLabelable {
+  @override final double size;
+  @override final String label;
+  Box(this.label, this.size);
+}
+
+T largest<T extends Measurable>(List<T> items) =>
+    items.reduce((a, b) => a.size >= b.size ? a : b);
+
+void printAll<T extends Labelable>(List<T> items) {
+  for (final item in items) print('  \${item.label}');
+}
+
+void main() {
+  print('--- Reified Generics ---');
+  inspectType(<int>[1, 2, 3]);
+
+  print('\\n--- Bounded Generics ---');
+  final boxes = [Box('Small', 1.0), Box('Large', 5.0), Box('Medium', 3.0)];
+  print('Largest: \${largest(boxes).label}');
+  print('All boxes:');
+  printAll(boxes);
+
+  // Generic type check at runtime
+  print('\\n--- Runtime Type Checks ---');
+  print(<String>[] is List<int>);  // false
+  print(<int>[] is List<num>);     // true — int is subtype of num
+}`,
+    expectedOutput: `--- Reified Generics ---\nRuntime type: List<int>\nIs List<int>: true\nIs List<String>: false\nIs List: true\n\n--- Bounded Generics ---\nLargest: Large\nAll boxes:\n  Small\n  Large\n  Medium\n\n--- Runtime Type Checks ---\nfalse\ntrue`,
+    quiz: [
+      { question: 'Are Dart generics erased at runtime (like Java)?', options: ['Yes, they are erased', 'No, Dart generics are reified — preserved at runtime', 'Only for primitive types', 'Only in AOT mode'], correctAnswerIndex: 1 },
+      { question: 'What does covariant mean on a method parameter?', options: ['The parameter must be a supertype', 'The parameter accepts the declared type and its subtypes', 'The parameter is optional', 'The parameter is read-only'], correctAnswerIndex: 1 },
+      { question: 'Why can\'t you pass List<Dog> where List<Animal> is expected?', options: ['Dog does not extend Animal', 'Generic types are invariant by default in Dart', 'List is sealed', 'You would need to use dynamic instead'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Write a generic function T? findMax<T extends Comparable<T>>(List<T> list, {bool Function(T)? where}) that returns the maximum element optionally filtered by a predicate. Test with integers and strings.',
+      starterCode: `T? findMax<T extends Comparable<T>>(List<T> list, {bool Function(T)? where}) {
+  // Filter if predicate given, then find max
+}
+
+void main() {
+  print(findMax([3, 1, 4, 1, 5, 9, 2, 6]));
+  print(findMax([3, 1, 4, 1, 5, 9, 2, 6], where: (n) => n < 5));
+  print(findMax(['banana', 'apple', 'cherry', 'date']));
+  print(findMax([]));
+}`,
+      solution: `T? findMax<T extends Comparable<T>>(List<T> list, {bool Function(T)? where}) {
+  final filtered = where != null ? list.where(where).toList() : list;
+  if (filtered.isEmpty) return null;
+  return filtered.reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
+}
+
+void main() {
+  print(findMax([3, 1, 4, 1, 5, 9, 2, 6]));
+  print(findMax([3, 1, 4, 1, 5, 9, 2, 6], where: (n) => n < 5));
+  print(findMax(['banana', 'apple', 'cherry', 'date']));
+  print(findMax([]));
+}`,
+    },
+  },
+
+  {
+    id: 67,
+    level: 'Advanced',
+    title: 'Advanced Patterns — Monad-like Patterns in Dart',
+    content: `# Functional Error Handling with Result and Option
+
+Functional programming patterns avoid exceptions for control flow, instead using types that explicitly represent success/failure or presence/absence.
+
+## Result<T, E> — Either Success or Failure
+
+\`\`\`dart
+sealed class Result<T, E> {
+  const Result();
+}
+class Ok<T, E> extends Result<T, E> {
+  final T value;
+  const Ok(this.value);
+}
+class Err<T, E> extends Result<T, E> {
+  final E error;
+  const Err(this.error);
+}
+\`\`\`
+
+## Option<T> — Maybe a Value
+
+\`\`\`dart
+sealed class Option<T> {
+  const Option();
+  static Option<T> some<T>(T value) => Some(value);
+  static Option<T> none<T>() => const None();
+}
+class Some<T> extends Option<T> { final T value; const Some(this.value); }
+class None<T> extends Option<T> { const None(); }
+\`\`\`
+
+## Chaining with map and flatMap
+
+\`\`\`dart
+extension ResultX<T, E> on Result<T, E> {
+  Result<R, E> map<R>(R Function(T) f) => switch (this) {
+    Ok(value: final v) => Ok(f(v)),
+    Err(error: final e) => Err(e),
+  };
+}
+\`\`\``,
+    tips: [
+      'Result types force callers to handle both success and failure — unlike exceptions which can be silently ignored.',
+      'These patterns are common in Rust (Result, Option) and Haskell (Either, Maybe) — understanding them deepens your FP knowledge.',
+      'In Dart, the fpdart package provides production-ready Either and Option types.',
+    ],
+    codeSnippet: `sealed class Result<T, E> {
+  const Result();
+  bool get isOk => this is Ok<T, E>;
+  bool get isErr => this is Err<T, E>;
+}
+
+class Ok<T, E> extends Result<T, E> {
+  final T value;
+  const Ok(this.value);
+  @override String toString() => 'Ok(\$value)';
+}
+
+class Err<T, E> extends Result<T, E> {
+  final E error;
+  const Err(this.error);
+  @override String toString() => 'Err(\$error)';
+}
+
+extension ResultUtils<T, E> on Result<T, E> {
+  Result<R, E> map<R>(R Function(T) f) => switch (this) {
+    Ok(value: final v) => Ok(f(v)),
+    Err() => this as Err<R, E>,
+  };
+
+  Result<R, E> flatMap<R>(Result<R, E> Function(T) f) => switch (this) {
+    Ok(value: final v) => f(v),
+    Err() => this as Err<R, E>,
+  };
+
+  T getOrElse(T defaultValue) => switch (this) {
+    Ok(value: final v) => v,
+    Err() => defaultValue,
+  };
+}
+
+Result<int, String> parseInt(String s) {
+  final n = int.tryParse(s);
+  return n != null ? Ok(n) : Err('Not a number: "\$s"');
+}
+
+Result<double, String> safeDivide(int a, int b) =>
+    b == 0 ? Err('Division by zero') : Ok(a / b);
+
+void main() {
+  // Chain operations
+  final result = parseInt('42')
+      .flatMap((n) => safeDivide(n, 7))
+      .map((d) => d * 100);
+
+  print(result); // Ok(600.0)
+  print(result.getOrElse(-1)); // 600.0
+
+  // Error case
+  final bad = parseInt('abc')
+      .flatMap((n) => safeDivide(n, 2));
+  print(bad); // Err(Not a number: "abc")
+  print(bad.getOrElse(0)); // 0
+}`,
+    expectedOutput: `Ok(600.0)\n600.0\nErr(Not a number: "abc")\n0`,
+    quiz: [
+      { question: 'What problem does the Result type solve compared to exceptions?', options: ['It is faster', 'It forces callers to explicitly handle both success and failure paths', 'It eliminates null values', 'It works in async code only'], correctAnswerIndex: 1 },
+      { question: 'What does flatMap do differently than map on a Result?', options: ['flatMap is async; map is sync', 'flatMap flattens a nested Result<Result<T>> to Result<T>; map wraps in another Ok', 'They are identical', 'flatMap handles errors; map does not'], correctAnswerIndex: 1 },
+      { question: 'What is an Option<T> type equivalent to in Dart?', options: ['A nullable T?', 'An async T', 'A List<T> with at most one element', 'A const T'], correctAnswerIndex: 0 },
+    ],
+    exercise: {
+      instruction: 'Implement a Result-based pipeline: parseAge(String s) → Result<int, String>, validateAge(int age) → Result<int, String> (must be 0-150), formatAge(int age) → String. Chain them and print results for "25", "200", and "abc".',
+      starterCode: `// Use the Result classes from the lesson
+
+Result<int, String> parseAge(String s) {
+  // Parse to int or Err
+}
+
+Result<int, String> validateAge(int age) {
+  // Must be 0-150
+}
+
+String formatAge(int age) => 'Valid age: \$age years old';
+
+void main() {
+  for (final input in ['25', '200', 'abc']) {
+    final result = parseAge(input)
+        .flatMap(validateAge)
+        .map(formatAge);
+    print('\$input → \$result');
+  }
+}`,
+      solution: `sealed class Result<T, E> { const Result(); }
+class Ok<T, E> extends Result<T, E> { final T value; const Ok(this.value); @override String toString() => 'Ok(\$value)'; }
+class Err<T, E> extends Result<T, E> { final E error; const Err(this.error); @override String toString() => 'Err(\$error)'; }
+
+extension ResultUtils<T, E> on Result<T, E> {
+  Result<R, E> map<R>(R Function(T) f) => switch (this) { Ok(value: final v) => Ok(f(v)), Err() => this as Err<R, E> };
+  Result<R, E> flatMap<R>(Result<R, E> Function(T) f) => switch (this) { Ok(value: final v) => f(v), Err() => this as Err<R, E> };
+}
+
+Result<int, String> parseAge(String s) {
+  final n = int.tryParse(s);
+  return n != null ? Ok(n) : Err('Not a number: "\$s"');
+}
+
+Result<int, String> validateAge(int age) =>
+    age >= 0 && age <= 150 ? Ok(age) : Err('Age must be 0-150, got \$age');
+
+String formatAge(int age) => 'Valid age: \$age years old';
+
+void main() {
+  for (final input in ['25', '200', 'abc']) {
+    final result = parseAge(input).flatMap(validateAge).map(formatAge);
+    print('\$input → \$result');
+  }
+}`,
+    },
+  },
+
+  {
+    id: 68,
+    level: 'Advanced',
+    title: 'Memory Management and the Garbage Collector',
+    content: `# Memory Management in Dart
+
+Dart uses a generational garbage collector (GC) that is designed for low-latency, suitable for UI applications like Flutter.
+
+## The Generational GC
+
+Objects are allocated in two generations:
+- **Young generation** (nursery): Most objects live and die here. Collection is fast.
+- **Old generation**: Long-lived objects promoted from young. Collection is less frequent.
+
+Flutter's GC is tuned to avoid pauses during frame rendering.
+
+## Object Lifecycle
+
+1. Object created → allocated in young generation
+2. If it survives a GC cycle → promoted to old generation
+3. When no more references exist → eligible for collection
+
+## Avoiding Memory Leaks in Dart
+
+**Common causes:**
+- Listeners never removed (especially StreamSubscriptions)
+- Closures capturing large objects
+- Static variables holding references
+- Isolate handles not closed
+
+\`\`\`dart
+// Leak: subscription never cancelled
+stream.listen(handler); // BAD if the object is disposed
+
+// Fix:
+final sub = stream.listen(handler);
+// When done:
+await sub.cancel();
+\`\`\`
+
+## Weak References
+
+\`\`\`dart
+final weakRef = WeakReference<MyObject>(myObj);
+// Returns null if the object has been garbage collected
+final obj = weakRef.target;
+\`\`\`
+
+## Finalizers
+
+\`\`\`dart
+final finalizer = Finalizer<String>((token) {
+  print('Object with token \$token was collected');
+});
+finalizer.attach(myObject, 'my-token', detach: myObject);
+\`\`\``,
+    tips: [
+      'In Flutter, always cancel StreamSubscriptions in dispose() to prevent memory leaks.',
+      'Use WeakReference when you want to hold a reference that doesn\'t prevent garbage collection.',
+      'Avoid large static collections that grow unbounded — they are never garbage collected.',
+    ],
+    codeSnippet: `import 'dart:async';
+
+// Demonstrating subscription lifecycle management
+class DataStream {
+  final _controller = StreamController<int>.broadcast();
+  int _count = 0;
+  Timer? _timer;
+
+  void start() {
+    _timer = Timer.periodic(Duration(milliseconds: 100), (_) {
+      _controller.add(_count++);
+    });
+  }
+
+  Stream<int> get stream => _controller.stream;
+
+  void dispose() {
+    _timer?.cancel();
+    _controller.close();
+    print('DataStream disposed');
+  }
+}
+
+class Consumer {
+  StreamSubscription<int>? _sub;
+  final List<int> received = [];
+
+  void attach(Stream<int> stream) {
+    _sub = stream.listen((n) => received.add(n));
+    print('Consumer attached');
+  }
+
+  Future<void> detach() async {
+    await _sub?.cancel();
+    _sub = null;
+    print('Consumer detached (sub cancelled)');
+  }
+}
+
+void main() async {
+  final ds = DataStream();
+  final consumer = Consumer();
+
+  ds.start();
+  consumer.attach(ds.stream);
+
+  await Future.delayed(Duration(milliseconds: 350));
+  print('Received so far: \${consumer.received}');
+
+  await consumer.detach(); // cancel subscription before disposing
+  ds.dispose();            // dispose the stream
+
+  // WeakReference demo
+  print('\\n--- WeakReference ---');
+  var obj = Object();
+  final weak = WeakReference(obj);
+  print('Target before GC: \${weak.target != null}'); // true
+  obj = Object(); // original Object is eligible for collection
+  print('Target reassigned (GC may collect): \${weak.target != null}');
+}`,
+    expectedOutput: `Consumer attached\nReceived so far: [0, 1, 2]\nConsumer detached (sub cancelled)\nDataStream disposed\n\n--- WeakReference ---\nTarget before GC: true\nTarget reassigned (GC may collect): true`,
+    quiz: [
+      { question: 'What are the two generations in Dart\'s garbage collector?', options: ['Heap and stack', 'Young and old', 'Fast and slow', 'Local and global'], correctAnswerIndex: 1 },
+      { question: 'What is the most common memory leak in Flutter apps?', options: ['Creating too many widgets', 'StreamSubscriptions never cancelled', 'Using final instead of var', 'Too many const objects'], correctAnswerIndex: 1 },
+      { question: 'What does WeakReference do differently from a normal reference?', options: ['It is faster to dereference', 'It does not prevent the referenced object from being garbage collected', 'It is thread-safe', 'It copies the object'], correctAnswerIndex: 1 },
+    ],
+    exercise: {
+      instruction: 'Build a ResourcePool<T> class that holds a fixed set of resources. Add acquire() that returns a resource (throws if pool is empty), release(T resource) that returns it, a count getter for available resources, and a dispose() that clears all. Test acquiring all, then releasing one.',
+      starterCode: `class ResourcePool<T> {
+  final List<T> _available;
+  ResourcePool(List<T> resources) : _available = List.of(resources);
+
+  int get count => _available.length;
+
+  T acquire() {
+    // Throw if empty
+  }
+
+  void release(T resource) {
+    // Return resource to pool
+  }
+
+  void dispose() {
+    // Clear all
+  }
+}
+
+void main() {
+  final pool = ResourcePool<String>(['conn1', 'conn2', 'conn3']);
+  print('Available: \${pool.count}');
+  final c1 = pool.acquire();
+  final c2 = pool.acquire();
+  print('After 2 acquires: \${pool.count}');
+  pool.release(c1);
+  print('After release: \${pool.count}');
+  pool.dispose();
+  print('After dispose: \${pool.count}');
+}`,
+      solution: `class ResourcePool<T> {
+  final List<T> _available;
+  ResourcePool(List<T> resources) : _available = List.of(resources);
+
+  int get count => _available.length;
+
+  T acquire() {
+    if (_available.isEmpty) throw StateError('Pool is empty');
+    return _available.removeLast();
+  }
+
+  void release(T resource) => _available.add(resource);
+
+  void dispose() => _available.clear();
+}
+
+void main() {
+  final pool = ResourcePool<String>(['conn1', 'conn2', 'conn3']);
+  print('Available: \${pool.count}');
+  final c1 = pool.acquire();
+  final c2 = pool.acquire();
+  print('After 2 acquires: \${pool.count}');
+  pool.release(c1);
+  print('After release: \${pool.count}');
+  pool.dispose();
+  print('After dispose: \${pool.count}');
+}`,
+    },
+  },
+
+
 ];

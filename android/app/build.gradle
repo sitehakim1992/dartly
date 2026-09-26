@@ -78,13 +78,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.newHMapps.pythonGuide"
+    namespace "com.newhmapps.dart"
     defaultConfig {
-        applicationId "com.newHMapps.pythonGuide"
+        applicationId "com.newhmapps.dart"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20
-        versionName "1.2.0"
+        versionCode 10
+        versionName "1.1.0"
     }
     signingConfigs {
         debug {
@@ -101,7 +101,7 @@ android {
                 keyAlias MYAPP_RELEASE_KEY_ALIAS
                 keyPassword MYAPP_RELEASE_KEY_PASSWORD
             }
-	}
+    }
     }
     buildTypes {
         debug {
