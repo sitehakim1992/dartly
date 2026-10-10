@@ -1,5 +1,5 @@
 // src/screens/LessonDetailScreen.tsx
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -17,12 +17,17 @@ import {
   toggleBookmark,
   getProgress,
 } from '../storage/progress';
-import {CodeBlock} from '../components/CodeBlock'; // ✅ Updated Import
+import {CodeBlock} from '../components/CodeBlock';
 import {lessonsData} from '../data/lessonsData';
 import {RootStackParamList} from '../navigation/AppNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useRoute, useNavigation, RouteProp} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
 type RouteType = RouteProp<RootStackParamList, 'LessonDetail'>;
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
@@ -33,6 +38,14 @@ const LEVEL_GRADIENT: Record<string, string[]> = {
   Advanced: GRADIENTS.advanced,
 };
 
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-6551659254419770/2857551405';
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
+
 export default function LessonDetailScreen() {
   const {theme, isDark} = useTheme();
   const route = useRoute<RouteType>();
@@ -41,6 +54,31 @@ export default function LessonDetailScreen() {
   const lesson = lessonsData.find(l => l.id === lessonId)!;
   const [isCompleted, setIsCompleted] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribeLoaded = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setAdLoaded(true);
+      },
+    );
+
+    const unsubscribeClosed = interstitial.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        setAdLoaded(false);
+        interstitial.load(); // إعادة تحضير إعلان جديد
+      },
+    );
+
+    interstitial.load();
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+    };
+  }, []);
 
   useCallback(() => {
     getProgress().then(p => {
@@ -52,6 +90,10 @@ export default function LessonDetailScreen() {
   const handleComplete = async () => {
     await markLessonComplete(lessonId);
     setIsCompleted(true);
+
+    if (adLoaded) {
+      interstitial.show();
+    }
   };
 
   const handleBookmark = async () => {
@@ -159,7 +201,6 @@ export default function LessonDetailScreen() {
           <Text style={[styles.sectionHeader2, {color: theme.colors.text}]}>
             💻 Code Example
           </Text>
-          {/* ✅ Updated Component */}
           <CodeBlock
             code={lesson.codeSnippet}
             title={`Lesson ${lesson.id}`}

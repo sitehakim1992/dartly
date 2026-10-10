@@ -94,7 +94,7 @@ export const FONTS = {
 
 export const SPACING = {
   xs: 4,
-  sm: 8,
+  sm: 10,
   md: 16,
   lg: 24,
   xl: 32,

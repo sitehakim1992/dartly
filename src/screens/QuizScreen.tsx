@@ -1,5 +1,5 @@
 // src/screens/QuizScreen.tsx
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,9 +16,22 @@ import {COLORS, GRADIENTS, RADIUS, SPACING} from '../theme';
 import {saveQuizScore, addXP} from '../storage/progress';
 import {lessonsData} from '../data/lessonsData';
 import {RootStackParamList} from '../navigation/AppNavigator';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
 type RouteType = RouteProp<RootStackParamList, 'Quiz'>;
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
+
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : 'ca-app-pub-6551659254419770/2857551405';
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+});
 
 export default function QuizScreen() {
   const {theme, isDark} = useTheme();
@@ -33,6 +46,31 @@ export default function QuizScreen() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribeLoaded = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setAdLoaded(true);
+      },
+    );
+
+    const unsubscribeClosed = interstitial.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        setAdLoaded(false);
+        interstitial.load();
+      },
+    );
+
+    interstitial.load();
+
+    return () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+    };
+  }, []);
 
   const question = questions[currentQ];
   const isCorrect = selected === question?.correctAnswerIndex;
@@ -60,6 +98,10 @@ export default function QuizScreen() {
       );
       saveQuizScore(lessonId, finalScore);
       setFinished(true);
+
+      if (adLoaded) {
+        interstitial.show();
+      }
     }
   };
 

@@ -1,4 +1,7 @@
 {
   "name": "Dartly – Learn Dart",
-  "displayName": "Dartly – Learn Dart"
+  "displayName": "Dartly – Learn Dart",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-6551659254419770~2634647486"
+  }
 }
